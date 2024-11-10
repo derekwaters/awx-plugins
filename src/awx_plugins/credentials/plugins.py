@@ -747,10 +747,30 @@ controller = ManagedCredentialType(
                 'type': 'boolean',
                 'secret': False,
             },
+            {
+                'id': 'ah_path_prefix',
+                'label': gettext_noop('Verify SSL'),
+                'type': 'string',
+                'secret': False,
+                'default': 'galaxy',
+                'help_text': gettext_noop(
+                    'API path used to access the Hub api. Either galaxy, '
+                    'or custom. By default it should be galaxy',
+                ),
+            },
         ],
         'required': ['host'],
     },
     injectors={
+        'extra_vars': {
+            'aap_hostname': '{{host}}',
+            'aap_username': '{{password}}',
+            'aap_password': '{{password}}',
+            'aap_token': '{{oauth_token}}',
+            'aap_request_timeout': '{{request_timeout}}',
+            'aap_validate_certs': '{{verify_ssl}}',
+            'ah_path_prefix': '{{ah_path_prefix}}',
+        },
         'env': {
             'TOWER_HOST': '{{host}}',
             'TOWER_USERNAME': '{{username}}',
@@ -762,6 +782,14 @@ controller = ManagedCredentialType(
             'CONTROLLER_PASSWORD': '{{password}}',
             'CONTROLLER_VERIFY_SSL': '{{verify_ssl}}',
             'CONTROLLER_OAUTH_TOKEN': '{{oauth_token}}',
+            'CONTROLLER_REQUEST_TIMEOUT': '{{request_timeout}}',
+            'AAP_HOSTNAME': '{{host}}',
+            'AAP_USERNAME': '{{username}}',
+            'AAP_PASSWORD': '{{password}}',
+            'AAP_VALIDATE_CERTS': '{{verify_ssl}}',
+            'AAP_TOKEN': '{{oauth_token}}',
+            'AAP_REQUEST_TIMEOUT': '{{request_timeout}}',
+            'GALAXY_API_PATH_PREFIX': '{{ah_path_prefix}}',
         },
     },
 )

@@ -748,14 +748,14 @@ controller = ManagedCredentialType(
                 'secret': False,
             },
             {
-                'id': 'ah_path_prefix',
+                'id': 'request_timeout',
                 'label': gettext_noop('Verify SSL'),
                 'type': 'string',
                 'secret': False,
                 'default': 'galaxy',
                 'help_text': gettext_noop(
-                    'API path used to access the Hub api. Either galaxy, '
-                    'or custom. By default it should be galaxy',
+                    'Specify the timeout Ansible should use in requests to'
+                    'the host. Defaults to 10s',
                 ),
             },
         ],
@@ -769,7 +769,6 @@ controller = ManagedCredentialType(
             'aap_token': '{{oauth_token}}',
             'aap_request_timeout': '{{request_timeout}}',
             'aap_validate_certs': '{{verify_ssl}}',
-            'ah_path_prefix': '{{ah_path_prefix}}',
         },
         'env': {
             'TOWER_HOST': '{{host}}',
@@ -789,7 +788,6 @@ controller = ManagedCredentialType(
             'AAP_VALIDATE_CERTS': '{{verify_ssl}}',
             'AAP_TOKEN': '{{oauth_token}}',
             'AAP_REQUEST_TIMEOUT': '{{request_timeout}}',
-            'GALAXY_API_PATH_PREFIX': '{{ah_path_prefix}}',
         },
     },
 )

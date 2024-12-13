@@ -6,12 +6,14 @@ import os
 import stat
 import tempfile
 
+from awx_plugins.interfaces._temporary_private_api import (  # noqa: WPS436
+    EnvVarsType,
+)
 from awx_plugins.interfaces._temporary_private_container_api import (  # noqa: WPS436
     get_incontainer_path,
 )
 from awx_plugins.interfaces._temporary_private_credential_api import (  # noqa: WPS436
     Credential,
-    GenericOptionalPrimitiveType,
 )
 from awx_plugins.interfaces._temporary_private_django_api import (  # noqa: WPS436
     get_vmware_certificate_validation_setting,
@@ -22,7 +24,7 @@ import yaml
 
 def aws(
     cred: Credential,
-    env: dict[str, GenericOptionalPrimitiveType],
+    env: EnvVarsType,
     private_data_dir: str,
 ) -> None:
     env['AWS_ACCESS_KEY_ID'] = cred.get_input('username', default='')
@@ -37,7 +39,7 @@ def aws(
 
 def gce(
     cred: Credential,
-    env: dict[str, GenericOptionalPrimitiveType],
+    env: EnvVarsType,
     private_data_dir: str,
 ) -> str:
     project = cred.get_input('project', default='')
@@ -80,7 +82,7 @@ def gce(
 
 def azure_rm(
     cred: Credential,
-    env: dict[str, GenericOptionalPrimitiveType],
+    env: EnvVarsType,
     private_data_dir: str,
 ) -> None:
     client = cred.get_input('client', default='')
@@ -102,7 +104,7 @@ def azure_rm(
 
 def vmware(
     cred: Credential,
-    env: dict[str, GenericOptionalPrimitiveType],
+    env: EnvVarsType,
     private_data_dir: str,
 ) -> None:
     env['VMWARE_USER'] = cred.get_input('username', default='')
@@ -147,7 +149,7 @@ def _openstack_data(cred: Credential):
 
 def openstack(
     cred: Credential,
-    env: dict[str, GenericOptionalPrimitiveType],
+    env: EnvVarsType,
     private_data_dir: str,
 ) -> None:
     handle, path = tempfile.mkstemp(dir=os.path.join(private_data_dir, 'env'))
@@ -166,7 +168,7 @@ def openstack(
 
 def kubernetes_bearer_token(
         cred: Credential,
-        env: dict[str, GenericOptionalPrimitiveType],
+        env: EnvVarsType,
         private_data_dir: str,
 ) -> None:
     env['K8S_AUTH_HOST'] = cred.get_input('host', default='')
@@ -188,7 +190,7 @@ def kubernetes_bearer_token(
 
 def terraform(
     cred: Credential,
-    env: dict[str, GenericOptionalPrimitiveType],
+    env: EnvVarsType,
     private_data_dir: str,
 ) -> None:
     handle, path = tempfile.mkstemp(dir=os.path.join(private_data_dir, 'env'))

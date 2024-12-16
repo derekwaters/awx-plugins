@@ -193,7 +193,7 @@ repos:
     name: MyPy, for Python 3.13
     additional_dependencies:
     - >-  # standard interface declarations for AWX plugins
-      awx_plugins.interfaces == 0.0.1a2
+      awx_plugins.interfaces == 0.0.1a3
     - azure-identity  # needed by credentials.azure_kv
     - azure-keyvault  # needed by credentials.azure_kv
     - boto3-stubs  # needed by credentials.awx_secretsmanager
@@ -224,7 +224,7 @@ repos:
     name: MyPy, for Python 3.12
     additional_dependencies:
     - >-  # standard interface declarations for AWX plugins
-      awx_plugins.interfaces == 0.0.1a2
+      awx_plugins.interfaces == 0.0.1a3
     - azure-identity  # needed by credentials.azure_kv
     - azure-keyvault  # needed by credentials.azure_kv
     - boto3-stubs  # needed by credentials.awx_secretsmanager
@@ -255,7 +255,7 @@ repos:
     name: MyPy, for Python 3.11
     additional_dependencies:
     - >-  # standard interface declarations for AWX plugins
-      awx_plugins.interfaces == 0.0.1a2
+      awx_plugins.interfaces == 0.0.1a3
     - azure-identity  # needed by credentials.azure_kv
     - azure-keyvault  # needed by credentials.azure_kv
     - boto3-stubs  # needed by credentials.awx_secretsmanager
@@ -288,7 +288,7 @@ repos:
   - id: pylint
     additional_dependencies:
     - >-  # standard interface declarations for AWX plugins
-      awx_plugins.interfaces == 0.0.1a2
+      awx_plugins.interfaces == 0.0.1a3
     - azure-identity  # needed by credentials.azure_kv
     - azure-keyvault  # needed by credentials.azure_kv
     - boto3  # needed by credentials.awx_secretsmanager

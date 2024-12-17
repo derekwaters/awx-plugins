@@ -9,20 +9,24 @@ from awx_plugins.interfaces._temporary_private_django_api import (  # noqa: WPS4
 )
 
 from .injectors import (
-    aws,
-    azure_rm,
-    gce,
-    kubernetes_bearer_token,
-    openstack,
-    terraform,
-    vmware,
+    aws as aws_injector,
+    azure_rm as azure_rm_injector,
+    gce as gce_injector,
+    kubernetes_bearer_token as kubernetes_bearer_token_injector,
+    openstack as openstack_injector,
+    terraform as terraform_injector,
+    vmware as vmware_injector,
 )
+
+
+__all__ = ()  # noqa: WPS410
 
 
 ssh = ManagedCredentialType(
     namespace='ssh',
     kind='ssh',
     name=gettext_noop('Machine'),
+    managed=True,
     inputs={
         'fields': [
             {
@@ -215,7 +219,7 @@ aws = ManagedCredentialType(
     kind='cloud',
     name=gettext_noop('Amazon Web Services'),
     managed=True,
-    custom_injectors=aws,
+    custom_injectors=aws_injector,
     inputs={
         'fields': [
             {
@@ -254,7 +258,7 @@ openstack = ManagedCredentialType(
     kind='cloud',
     name=gettext_noop('OpenStack'),
     managed=True,
-    custom_injectors=openstack,
+    custom_injectors=openstack_injector,
     inputs={
         'fields': [
             {
@@ -328,7 +332,7 @@ vmware = ManagedCredentialType(
     kind='cloud',
     name=gettext_noop('VMware vCenter'),
     managed=True,
-    custom_injectors=vmware,
+    custom_injectors=vmware_injector,
     inputs={
         'fields': [
             {
@@ -401,7 +405,7 @@ gce = ManagedCredentialType(
     kind='cloud',
     name=gettext_noop('Google Compute Engine'),
     managed=True,
-    custom_injectors=gce,
+    custom_injectors=gce_injector,
     inputs={
         'fields': [
             {
@@ -449,7 +453,7 @@ azure_rm = ManagedCredentialType(
     kind='cloud',
     name=gettext_noop('Microsoft Azure Resource Manager'),
     managed=True,
-    custom_injectors=azure_rm,
+    custom_injectors=azure_rm_injector,
     inputs={
         'fields': [
             {
@@ -726,7 +730,8 @@ kubernetes_bearer_token = ManagedCredentialType(
     namespace='kubernetes_bearer_token',
     kind='kubernetes',
     name=gettext_noop('OpenShift or Kubernetes API Bearer Token'),
-    custom_injectors=kubernetes_bearer_token,
+    managed=True,
+    custom_injectors=kubernetes_bearer_token_injector,
     inputs={
         'fields': [
             {
@@ -766,6 +771,7 @@ registry = ManagedCredentialType(
     namespace='registry',
     kind='registry',
     name=gettext_noop('Container Registry'),
+    managed=True,
     inputs={
         'fields': [
             {
@@ -807,6 +813,7 @@ galaxy_api_token = ManagedCredentialType(
     namespace='galaxy_api_token',
     kind='galaxy',
     name=gettext_noop('Ansible Galaxy/Automation Hub API Token'),
+    managed=True,
     inputs={
         'fields': [
             {
@@ -845,6 +852,7 @@ gpg_public_key = ManagedCredentialType(
     namespace='gpg_public_key',
     kind='cryptography',
     name=gettext_noop('GPG Public Key'),
+    managed=True,
     inputs={
         'fields': [
             {
@@ -867,7 +875,7 @@ terraform = ManagedCredentialType(
     kind='cloud',
     name=gettext_noop('Terraform backend configuration'),
     managed=True,
-    custom_injectors=terraform,
+    custom_injectors=terraform_injector,
     inputs={
         'fields': [
             {

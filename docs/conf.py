@@ -213,4 +213,5 @@ nitpick_ignore = [
         'py:class',
         'awx_plugins.interfaces._temporary_private_credential_api.Credential',
     ),
+    ('py:class', 'EnvVarsType'),
 ]

@@ -6,12 +6,14 @@ import os
 import stat
 import tempfile
 
+from awx_plugins.interfaces._temporary_private_api import (  # noqa: WPS436
+    EnvVarsType,
+)
 from awx_plugins.interfaces._temporary_private_container_api import (  # noqa: WPS436
     get_incontainer_path,
 )
 from awx_plugins.interfaces._temporary_private_credential_api import (  # noqa: WPS436
     Credential,
-    GenericOptionalPrimitiveType,
 )
 from awx_plugins.interfaces._temporary_private_django_api import (  # noqa: WPS436
     get_vmware_certificate_validation_setting,
@@ -22,32 +24,36 @@ import yaml
 
 def aws(
     cred: Credential,
-    env: dict[str, GenericOptionalPrimitiveType],
+    env: EnvVarsType,
     private_data_dir: str,
 ) -> None:
-    env['AWS_ACCESS_KEY_ID'] = cred.get_input('username', default='')
-    env['AWS_SECRET_ACCESS_KEY'] = cred.get_input('password', default='')
+    env['AWS_ACCESS_KEY_ID'] = str(cred.get_input('username', default=''))
+    env['AWS_SECRET_ACCESS_KEY'] = str(cred.get_input('password', default=''))
 
     if cred.has_input('security_token'):
-        env['AWS_SECURITY_TOKEN'] = cred.get_input(
-            'security_token', default='',
+        env['AWS_SECURITY_TOKEN'] = str(
+            cred.get_input(
+                'security_token', default='',
+            ),
         )
         env['AWS_SESSION_TOKEN'] = env['AWS_SECURITY_TOKEN']
 
 
 def gce(
     cred: Credential,
-    env: dict[str, GenericOptionalPrimitiveType],
+    env: EnvVarsType,
     private_data_dir: str,
 ) -> str:
-    project = cred.get_input('project', default='')
-    username = cred.get_input('username', default='')
+    project = str(cred.get_input('project', default=''))
+    username = str(cred.get_input('username', default=''))
 
     json_cred = {
         'type': 'service_account',
-        'private_key': cred.get_input(
-            'ssh_key_data',
-            default='',
+        'private_key': str(
+            cred.get_input(
+                'ssh_key_data',
+                default='',
+            ),
         ),
         'client_email': username,
         'project_id': project,
@@ -80,34 +86,38 @@ def gce(
 
 def azure_rm(
     cred: Credential,
-    env: dict[str, GenericOptionalPrimitiveType],
+    env: EnvVarsType,
     private_data_dir: str,
 ) -> None:
-    client = cred.get_input('client', default='')
-    tenant = cred.get_input('tenant', default='')
+    client = str(cred.get_input('client', default=''))
+    tenant = str(cred.get_input('tenant', default=''))
 
-    env['AZURE_SUBSCRIPTION_ID'] = cred.get_input('subscription', default='')
+    env['AZURE_SUBSCRIPTION_ID'] = str(
+        cred.get_input('subscription', default=''),
+    )
 
     if client and tenant:
         env['AZURE_CLIENT_ID'] = client
         env['AZURE_TENANT'] = tenant
-        env['AZURE_SECRET'] = cred.get_input('secret', default='')
+        env['AZURE_SECRET'] = str(cred.get_input('secret', default=''))
     else:
-        env['AZURE_AD_USER'] = cred.get_input('username', default='')
-        env['AZURE_PASSWORD'] = cred.get_input('password', default='')
+        env['AZURE_AD_USER'] = str(cred.get_input('username', default=''))
+        env['AZURE_PASSWORD'] = str(cred.get_input('password', default=''))
 
     if cred.has_input('cloud_environment'):
-        env['AZURE_CLOUD_ENVIRONMENT'] = cred.get_input('cloud_environment')
+        env['AZURE_CLOUD_ENVIRONMENT'] = str(
+            cred.get_input('cloud_environment'),
+        )
 
 
 def vmware(
     cred: Credential,
-    env: dict[str, GenericOptionalPrimitiveType],
+    env: EnvVarsType,
     private_data_dir: str,
 ) -> None:
-    env['VMWARE_USER'] = cred.get_input('username', default='')
-    env['VMWARE_PASSWORD'] = cred.get_input('password', default='')
-    env['VMWARE_HOST'] = cred.get_input('host', default='')
+    env['VMWARE_USER'] = str(cred.get_input('username', default=''))
+    env['VMWARE_PASSWORD'] = str(cred.get_input('password', default=''))
+    env['VMWARE_HOST'] = str(cred.get_input('host', default=''))
     env['VMWARE_VALIDATE_CERTS'] = str(
         get_vmware_certificate_validation_setting(),
     )
@@ -115,18 +125,22 @@ def vmware(
 
 def _openstack_data(cred: Credential):
     openstack_auth = dict(
-        auth_url=cred.get_input('host', default=''),
-        username=cred.get_input('username', default=''),
-        password=cred.get_input('password', default=''),
-        project_name=cred.get_input('project', default=''),
+        auth_url=str(cred.get_input('host', default='')),
+        username=str(cred.get_input('username', default='')),
+        password=str(cred.get_input('password', default='')),
+        project_name=str(cred.get_input('project', default='')),
     )
     if cred.has_input('project_domain_name'):
-        openstack_auth['project_domain_name'] = cred.get_input(
-            'project_domain_name', default='',
+        openstack_auth['project_domain_name'] = str(
+            cred.get_input(
+                'project_domain_name', default='',
+            ),
         )
     if cred.has_input('domain'):
-        openstack_auth['domain_name'] = cred.get_input('domain', default='')
-    verify_state = cred.get_input('verify_ssl', default=True)
+        openstack_auth['domain_name'] = str(
+            cred.get_input('domain', default=''),
+        )
+    verify_state = bool(cred.get_input('verify_ssl', default=True))
 
     openstack_data = {
         'clouds': {
@@ -138,8 +152,10 @@ def _openstack_data(cred: Credential):
     }
 
     if cred.has_input('region'):
-        openstack_data['clouds']['devstack']['region_name'] = cred.get_input(
-            'region', default='',
+        openstack_data['clouds']['devstack']['region_name'] = str(
+            cred.get_input(
+                'region', default='',
+            ),
         )
 
     return openstack_data
@@ -147,7 +163,7 @@ def _openstack_data(cred: Credential):
 
 def openstack(
     cred: Credential,
-    env: dict[str, GenericOptionalPrimitiveType],
+    env: EnvVarsType,
     private_data_dir: str,
 ) -> None:
     handle, path = tempfile.mkstemp(dir=os.path.join(private_data_dir, 'env'))
@@ -166,11 +182,11 @@ def openstack(
 
 def kubernetes_bearer_token(
         cred: Credential,
-        env: dict[str, GenericOptionalPrimitiveType],
+        env: EnvVarsType,
         private_data_dir: str,
 ) -> None:
-    env['K8S_AUTH_HOST'] = cred.get_input('host', default='')
-    env['K8S_AUTH_API_KEY'] = cred.get_input('bearer_token', default='')
+    env['K8S_AUTH_HOST'] = str(cred.get_input('host', default=''))
+    env['K8S_AUTH_API_KEY'] = str(cred.get_input('bearer_token', default=''))
     if cred.get_input('verify_ssl') and cred.has_input('ssl_ca_cert'):
         env['K8S_AUTH_VERIFY_SSL'] = 'True'
         handle, path = tempfile.mkstemp(
@@ -188,7 +204,7 @@ def kubernetes_bearer_token(
 
 def terraform(
     cred: Credential,
-    env: dict[str, GenericOptionalPrimitiveType],
+    env: EnvVarsType,
     private_data_dir: str,
 ) -> None:
     handle, path = tempfile.mkstemp(dir=os.path.join(private_data_dir, 'env'))

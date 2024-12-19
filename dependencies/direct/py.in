@@ -4,6 +4,7 @@ covdefaults
 coverage  # accessed directly from tox
 coverage-enable-subprocess
 hypothesis
+Jinja2
 pytest
 pytest-cov
 pytest-mock

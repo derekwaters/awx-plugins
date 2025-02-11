@@ -46,4 +46,7 @@ coverage:
         - MyPy
         target: 100%
 
+github_checks:
+  annotations: false
+
 ...

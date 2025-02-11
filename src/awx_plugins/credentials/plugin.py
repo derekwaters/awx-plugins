@@ -1,19 +1,19 @@
 # FIXME: the following violations must be addressed gradually and unignored
-# mypy: disable-error-code="assignment, no-untyped-def"
+# mypy: disable-error-code="no-untyped-def"
 
 import os
 import tempfile
 import typing
-from collections import namedtuple
 
 from requests.exceptions import HTTPError
 
 
-CredentialPlugin = namedtuple(
-    'CredentialPlugin', [
-        'name', 'inputs', 'backend',
-    ],
-)
+class CredentialPlugin(typing.NamedTuple):
+    """Schema for credential plugins."""
+
+    name: str
+    inputs: object
+    backend: object
 
 
 def raise_for_status(resp):

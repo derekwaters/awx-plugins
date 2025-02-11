@@ -155,6 +155,7 @@ rst-roles =
   class,
   data,
   file,
+  func,
   exc,
   meth,
   mod,
@@ -162,6 +163,7 @@ rst-roles =
   py:class,
   py:data,
   py:exc,
+  py:func,
   py:meth,
   py:term,
   # Sphinx's internal role:

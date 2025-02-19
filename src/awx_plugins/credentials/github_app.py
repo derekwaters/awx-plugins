@@ -76,10 +76,10 @@ github_app_inputs: GitHubAppInputs = {
         },
         {
             'id': 'app_or_client_id',
-            'label': _('GitHub App ID or Client ID'),
+            'label': _('GitHub App ID'),
             'type': 'string',
             'help_text': _(
-                'The GitHub App ID or Client ID created by the GitHub Admin. '
+                'The GitHub App ID created by the GitHub Admin. '
                 'Example App ID: 1121547 '
                 'found on https://github.com/settings/apps/ '
                 'required for creating a JWT token for authentication.',
@@ -169,6 +169,13 @@ def _assert_ids_look_acceptable(
             'Expected GitHub App or Client ID to be an integer or a string '
             f'starting with `Iv1.` followed by 16 hexadecimal digits, '
             f'but got {app_or_client_id !r}',
+        )
+
+    if isinstance(app_or_client_id, str) and _is_client_id(app_or_client_id):
+        raise ValueError(
+            'Expected GitHub App ID must be an integer or a string '
+            f'with an all-digit value, but got {app_or_client_id !r}. '
+            'Client IDs are currently unsupported.',
         )
 
     if not _is_intish(install_id):

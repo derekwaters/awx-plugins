@@ -29,6 +29,14 @@ from jwt import decode as decode_jwt
 from awx_plugins.credentials import github_app as gh_app_plugin_mod
 
 
+github_app_jwt_client_id_unsupported = pytest.mark.xfail(
+    raises=(AssertionError, ValueError),
+    reason='Client ID in JWT is not currently supported by '
+    'PyGitHub and is disabled.\n\n'
+    'Ref: https://github.com/PyGithub/PyGithub/issues/3213',
+)
+
+
 RSA_PUBLIC_EXPONENT = 65_537  # noqa: WPS303
 MINIMUM_RSA_KEY_SIZE = 1024  # the lowest value chosen for performance in tests
 
@@ -158,6 +166,7 @@ class AppInstallIds(TypedDict):
             '^Expected GitHub App Installation ID to be an integer '
             "but got 'invalid'$",
             id='gh-app-invalid-install-id-with-client-id',
+            marks=github_app_jwt_client_id_unsupported,
         ),
     ),
 )
@@ -263,7 +272,14 @@ class _FakeAppInstallationAuth(AppInstallationAuth):
 
 @pytest.mark.parametrize(
     'application_id',
-    (123, '123', 'Iv1.aaaaaaaaaaaaaaaa'),
+    (
+        123,
+        '123',
+        pytest.param(
+            'Iv1.aaaaaaaaaaaaaaaa',
+            marks=github_app_jwt_client_id_unsupported,
+        ),
+    ),
     ids=('app-id-int', 'app-id-str', 'client-id'),
 )
 @pytest.mark.parametrize(

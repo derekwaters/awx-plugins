@@ -13,3 +13,5 @@
 #      remain in Git.                                                         #
 #                                                                             #
 ###############################################################################
+
+Sphinx < 8.2  # `sphinxcontrib.apidoc` has a bug in how they declare setting defaults that Sphinx 8.2 reveals. This should be reverted once https://github.com/sphinx-contrib/apidoc/issues/21 is fixed and released.

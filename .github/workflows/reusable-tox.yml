@@ -405,7 +405,7 @@ jobs:
           }}
         token: ${{ secrets.codecov-token }}
         version: >-  # revert https://github.com/codecov/codecov-cli/issues/641
-          10.0.1
+          v10.0.1
     - name: Upload test results to Codecov
       if: >-
         !cancelled()
@@ -431,6 +431,6 @@ jobs:
           }}
         token: ${{ secrets.codecov-token }}
         version: >-  # revert https://github.com/codecov/codecov-cli/issues/641
-          10.0.1
+          v10.0.1
 
 ...

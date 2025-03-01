@@ -553,7 +553,7 @@ jobs:
         ${{ matrix.tox-run-posargs }}
       upstream-repository-id: >-
         ${{ needs.pre-setup.outputs.upstream-repository-id }}
-      voting: >-
+      xfail: >-
         ${{
           fromJSON(needs.pre-setup.outputs.is-yolo-mode)
           || fromJSON(matrix.xfail)
@@ -616,7 +616,7 @@ jobs:
         --lf
       upstream-repository-id: >-
         ${{ needs.pre-setup.outputs.upstream-repository-id }}
-      voting: >-
+      xfail: >-
         ${{
           fromJSON(needs.pre-setup.outputs.is-yolo-mode)
           || fromJSON(matrix.xfail)

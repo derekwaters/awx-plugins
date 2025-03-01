@@ -70,7 +70,7 @@ on:
         description: ID of the upstream GitHub Repository
         required: true
         type: string
-      voting:
+      xfail:
         description: >-
           Whether the run outcomes contribute to the failing CI status
         required: true
@@ -130,7 +130,7 @@ jobs:
     continue-on-error: >-
       ${{
           (
-            fromJSON(inputs.voting) ||
+            fromJSON(inputs.xfail) ||
             (
               startsWith(inputs.python-version, '~')
             ) ||

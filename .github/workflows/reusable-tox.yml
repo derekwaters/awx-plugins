@@ -72,7 +72,10 @@ on:
         type: string
       xfail:
         description: >-
-          Whether the run outcomes contribute to the failing CI status
+          Whether this job is expected to fail. Controls if the run outcomes
+          contribute to the failing CI status or not. The job status will be
+          treated as successful if this is set to `true`. Setting `false`
+          should be preferred typically.
         required: true
         type: string
     secrets:

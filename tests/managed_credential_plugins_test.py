@@ -3,11 +3,8 @@
 # mypy: allow-any-unimported
 import configparser
 import json
-import os
-import shutil
-import tempfile
-from collections.abc import Generator
 from dataclasses import dataclass
+from pathlib import Path
 from types import MappingProxyType
 from typing import Generic, Never, TypeVar
 
@@ -101,17 +98,15 @@ def to_host_path(path: str, private_data_dir: str) -> str:
 
 
 @pytest.fixture
-def private_data_dir() -> Generator[str, None, None]:
+def private_data_dir(tmp_path: Path) -> Path:
     """Simulate ansible-runner directory backed runtime parameters.
 
     :yield: runtime directory
     """
-    private_data = tempfile.mkdtemp(prefix='awx_')
-    for subfolder in ('inventory', 'env'):
-        runner_subfolder = os.path.join(private_data, subfolder)
-        os.mkdir(runner_subfolder)
-    yield private_data
-    shutil.rmtree(private_data, ignore_errors=True)
+    private_data_directory = tmp_path / 'aws-private-data-dir'
+    (private_data_directory / 'env').mkdir(parents=True)
+    (private_data_directory / 'inventory').mkdir()
+    return private_data_directory
 
 
 ExpectedDataType = TypeVar('ExpectedDataType')
@@ -518,7 +513,7 @@ def test_credential_plugins(  # noqa: WPS211
     expected_env: dict[str, str],
     expected_safe_env: dict[str, str],
     expected_data_file: list[BaseEnvFile[ExpectedDataType]],
-    private_data_dir: str,
+    private_data_dir: Path,
     subtests: SubTests,
 ) -> None:
     """Check that the aws sts token credentials are injected."""
@@ -530,11 +525,11 @@ def test_credential_plugins(  # noqa: WPS211
         env,
         safe_env,
         [],
-        private_data_dir,
+        str(private_data_dir),
     )
     assert expected_env.items() <= env.items()
     assert expected_safe_env.items() <= safe_env.items()
 
     for env_file_type in expected_data_file:
         with subtests.test(env_file_type.__class__.__name__):
-            env_file_type.check(env, private_data_dir)
+            env_file_type.check(env, str(private_data_dir))

@@ -236,7 +236,7 @@ jobs:
     - name: >-
         Pre-populate tox envs: `${{ env.TOXENV }}`
       run: >-
-        python -Im
+        python -Xutf8 -Im
         tox
         --parallel auto
         --parallel-live
@@ -250,7 +250,7 @@ jobs:
     - name: Initialize pre-commit envs if needed
       if: inputs.toxenv == 'pre-commit'
       run: >-
-        python -Im
+        python -Xutf8 -Im
         tox
         exec
         --skip-pkg-install
@@ -261,7 +261,7 @@ jobs:
         Run tox envs: `${{ env.TOXENV }}`
       id: tox-run
       run: >-
-        python -Im
+        python -Xutf8 -Im
         tox
         --parallel auto
         --parallel-live
@@ -317,7 +317,7 @@ jobs:
         && failure()
         && inputs.tox-rerun-posargs != ''
       run: >-  # `exit 1` makes sure that the job remains red with flaky runs
-        python -Im
+        python -Xutf8 -Im
         tox
         --parallel auto
         --parallel-live

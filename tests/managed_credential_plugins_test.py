@@ -12,6 +12,7 @@ from types import MappingProxyType
 from typing import Generic, Never, TypeVar
 
 import pytest
+from pytest_subtests import SubTests
 
 from awx_plugins.interfaces._temporary_private_api import (  # noqa: WPS436
     EnvVarsType,
@@ -518,6 +519,7 @@ def test_credential_plugins(  # noqa: WPS211
     expected_safe_env: dict[str, str],
     expected_data_file: list[BaseEnvFile[ExpectedDataType]],
     private_data_dir: str,
+    subtests: SubTests,
 ) -> None:
     """Check that the aws sts token credentials are injected."""
     env: EnvVarsType = {}
@@ -534,4 +536,5 @@ def test_credential_plugins(  # noqa: WPS211
     assert expected_safe_env.items() <= safe_env.items()
 
     for env_file_type in expected_data_file:
-        env_file_type.check(env, private_data_dir)
+        with subtests.test(env_file_type.__class__.__name__):
+            env_file_type.check(env, private_data_dir)

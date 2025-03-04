@@ -10,7 +10,7 @@ from collections.abc import Generator
 from dataclasses import dataclass
 from pathlib import Path
 from types import MappingProxyType
-from typing import Generic, TypeVar
+from typing import Generic, Never, TypeVar
 
 import pytest
 
@@ -141,7 +141,7 @@ class BaseEnvFile(Generic[ExpectedDataType]):
         self: 'BaseEnvFile[ExpectedDataType]',
         env: EnvVarsType,
         private_data_dir: str,
-    ) -> None:
+    ) -> None | Never:
         """Override to ensure file contains expected data.
 
         :param env: environment to get the filename from

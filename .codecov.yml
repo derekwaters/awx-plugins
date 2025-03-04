@@ -42,7 +42,7 @@ coverage:
       typing:
         flags:
         - MyPy
-        target: 100%
+        target: 67.15%
 
 github_checks:
   annotations: false

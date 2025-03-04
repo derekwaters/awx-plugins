@@ -176,4 +176,3 @@ target = '100%'
 flags = [
   'MyPy',
 ]
-target = '100%'

@@ -8,7 +8,6 @@ import shutil
 import tempfile
 from collections.abc import Generator
 from dataclasses import dataclass
-from pathlib import Path
 from types import MappingProxyType
 from typing import Generic, Never, TypeVar
 
@@ -95,20 +94,8 @@ def to_host_path(path: str, private_data_dir: str) -> str:
 
     :param path: container path
     :param private_data_dir: runtime directory
-    :raises ValueError: When private_data_dir is not an absolute path
-    :raises ValueError: path must be a subdir of the container root dir
     :return: Absolute path of private_data_dir on the container host
     """
-    if not os.path.isabs(private_data_dir):
-        raise ValueError('The private_data_dir path must be absolute')
-    is_subdir_of_container = (
-        CONTAINER_ROOT == path
-        or Path(CONTAINER_ROOT) in Path(path).resolve().parents
-    )
-    if not is_subdir_of_container:
-        raise ValueError(
-            f'Cannot convert path {path}, not a subdir of {CONTAINER_ROOT}',
-        )
     return path.replace(CONTAINER_ROOT, private_data_dir, 1)
 
 

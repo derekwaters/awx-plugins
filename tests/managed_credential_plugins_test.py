@@ -504,8 +504,8 @@ class YamlEnvFile(BaseEnvFile[dict[str, IniEntryDataType]]):
         ),
     ),
 )
-# pylint: disable-next=too-many-arguments, too-many-positional-arguments
 # FIXME: Type ignore below due to ManagedCredentialType type not found.
+# pylint: disable-next=too-many-arguments, too-many-positional-arguments
 def test_credential_plugins(  # type: ignore[no-any-unimported]  # noqa: WPS211
     cred_type: ManagedCredentialType,
     inputs: CredentialInputType,

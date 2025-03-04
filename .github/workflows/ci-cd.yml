@@ -563,9 +563,11 @@ jobs:
 
   tests:
     name: 🧪 Tests${{ '' }}  # nest jobs under the same sidebar category
+
     needs:
     - build
     - pre-setup  # transitive, for accessing settings
+
     strategy:
       matrix:
         python-version:

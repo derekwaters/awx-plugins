@@ -148,7 +148,7 @@ class BaseEnvFile(Generic[ExpectedDataType]):
         :param private_data_dir: directory to read the file from
         :returns: None
         """
-        raise RuntimeError('Define me.')
+        raise NotImplementedError('Define me.')
 
 
 class JsonEnvFile(BaseEnvFile[dict[str, str] | MappingProxyType[str, str]]):

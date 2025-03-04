@@ -1,6 +1,3 @@
-# FIXME: the following violations must be addressed gradually and unignored
-# mypy: disable-error-code="no-untyped-call"
-
 from unittest import mock
 
 import pytest
@@ -29,7 +26,7 @@ def test_hashivault_approle_auth() -> None:
         'role_id': 'the_role_id',
         'secret_id': 'the_secret_id',
     }
-    res = hashivault.approle_auth(**kwargs)
+    res = hashivault.approle_auth(**kwargs)  # type: ignore[no-untyped-call]
     assert res == expected_res
 
 
@@ -43,7 +40,9 @@ def test_hashivault_kubernetes_auth() -> None:
     }
     with mock.patch('pathlib.Path') as path_mock:
         mock.mock_open(path_mock.return_value.open, read_data='the_jwt')
-        res = hashivault.kubernetes_auth(**kwargs)
+        res = hashivault.kubernetes_auth(  # type: ignore[no-untyped-call]
+            **kwargs,
+        )
         path_mock.assert_called_with(
             '/var/run/secrets/kubernetes.io/serviceaccount/token',
         )
@@ -57,7 +56,9 @@ def test_hashivault_client_cert_auth_explicit_role() -> None:
     expected_res = {
         'name': 'test-cert-1',
     }
-    res = hashivault.client_cert_auth(**kwargs)
+    res = hashivault.client_cert_auth(  # type: ignore[no-untyped-call]
+        **kwargs,
+    )
     assert res == expected_res
 
 
@@ -66,14 +67,16 @@ def test_hashivault_client_cert_auth_no_role() -> None:
     expected_res = {
         'name': None,
     }
-    res = hashivault.client_cert_auth(**kwargs)
+    res = hashivault.client_cert_auth(  # type: ignore[no-untyped-call]
+        **kwargs,
+    )
     assert res == expected_res
 
 
 def test_hashivault_userpass_auth() -> None:
     kwargs = {'username': 'the_username', 'password': 'the_password'}
     expected_res = {'username': 'the_username', 'password': 'the_password'}
-    res = hashivault.userpass_auth(**kwargs)
+    res = hashivault.userpass_auth(**kwargs)  # type: ignore[no-untyped-call]
     assert res == expected_res
 
 
@@ -81,7 +84,7 @@ def test_hashivault_handle_auth_token() -> None:
     kwargs = {
         'token': 'the_token',
     }
-    token = hashivault.handle_auth(**kwargs)
+    token = hashivault.handle_auth(**kwargs)  # type: ignore[no-untyped-call]
     assert token == kwargs['token']
 
 
@@ -92,7 +95,9 @@ def test_hashivault_handle_auth_approle() -> None:
     }
     with mock.patch.object(hashivault, 'method_auth') as method_mock:
         method_mock.return_value = 'the_token'
-        token = hashivault.handle_auth(**kwargs)
+        token = hashivault.handle_auth(  # type: ignore[no-untyped-call]
+            **kwargs,
+        )
         method_mock.assert_called_with(**kwargs, auth_param=kwargs)
         assert token == 'the_token'
 
@@ -105,7 +110,9 @@ def test_hashivault_handle_auth_kubernetes() -> None:
         with mock.patch('pathlib.Path') as path_mock:
             mock.mock_open(path_mock.return_value.open, read_data='the_jwt')
             method_mock.return_value = 'the_token'
-            token = hashivault.handle_auth(**kwargs)
+            token = hashivault.handle_auth(  # type: ignore[no-untyped-call]
+                **kwargs,
+            )
             method_mock.assert_called_with(
                 **kwargs,
                 auth_param={
@@ -127,14 +134,16 @@ def test_hashivault_handle_auth_client_cert() -> None:
     }
     with mock.patch.object(hashivault, 'method_auth') as method_mock:
         method_mock.return_value = 'the_token'
-        token = hashivault.handle_auth(**kwargs)
+        token = hashivault.handle_auth(  # type: ignore[no-untyped-call]
+            **kwargs,
+        )
         method_mock.assert_called_with(**kwargs, auth_param=auth_params)
         assert token == 'the_token'
 
 
 def test_hashivault_handle_auth_not_enough_args() -> None:
     with pytest.raises(Exception):
-        hashivault.handle_auth()
+        hashivault.handle_auth()  # type: ignore[no-untyped-call]
 
 
 class TestDelineaImports:
@@ -216,7 +225,7 @@ def test_aim_sensitive_traceback_masked(
         requests.exceptions.HTTPError,
         match=expected_url_in_exc,
     ) as e:
-        aim.aim_backend(
+        aim.aim_backend(  # type: ignore[no-untyped-call]
             url='http://testurl.com',
             app_id='foobar123',
             object_query='foobar123',

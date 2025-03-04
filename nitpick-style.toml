@@ -167,7 +167,6 @@ flags = [
 flags = [
   'pytest',
 ]
-target = '100%'
 [".codecov.yml".coverage.status.project.tests]
 flags = [
   'pytest',

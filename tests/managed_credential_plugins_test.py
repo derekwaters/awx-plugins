@@ -1,6 +1,4 @@
 """Individual ManagedCredentialType plugin tests."""
-# FIXME: ManagedCredentialType type not found.
-# mypy: allow-any-unimported
 import configparser
 import json
 from dataclasses import dataclass
@@ -507,7 +505,8 @@ class YamlEnvFile(BaseEnvFile[dict[str, IniEntryDataType]]):
     ),
 )
 # pylint: disable-next=too-many-arguments, too-many-positional-arguments
-def test_credential_plugins(  # noqa: WPS211
+# FIXME: Type ignore below due to ManagedCredentialType type not found.
+def test_credential_plugins(  # type: ignore[no-any-unimported]  # noqa: WPS211
     cred_type: ManagedCredentialType,
     inputs: CredentialInputType,
     expected_env: dict[str, str],

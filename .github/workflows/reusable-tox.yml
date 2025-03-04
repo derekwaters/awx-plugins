@@ -82,6 +82,18 @@ on:
         description: Name of the tox environment to use
         required: true
         type: string
+      tox-provision-args:
+        description: Tox arguments to pass to the env provisioning run
+        required: false
+        type: string
+      tox-run-args:
+        description: Tox arguments to pass to the regular run
+        required: false
+        type: string
+      tox-rerun-args:
+        description: Tox arguments to pass to the re-attempted run
+        required: false
+        type: string
       tox-run-posargs:
         description: Positional arguments to pass to the regular tox run
         required: false
@@ -253,6 +265,7 @@ jobs:
         --parallel auto
         --parallel-live
         --skip-missing-interpreters false
+        ${{ inputs.tox-provision-args }}
         ${{
           inputs.built-wheel-names != ''
           && format('--installpkg dist/{0}', inputs.built-wheel-names)
@@ -280,6 +293,7 @@ jobs:
         --skip-missing-interpreters false
         --skip-pkg-install
         --quiet
+        ${{ inputs.tox-run-args }}
         ${{
           inputs.tox-run-posargs != ''
           && format('-- {0}', inputs.tox-run-posargs)
@@ -336,6 +350,7 @@ jobs:
         --skip-missing-interpreters false
         -vvvvv
         --skip-pkg-install
+        ${{ inputs.tox-rerun-args }}
         --
         ${{ inputs.tox-rerun-posargs }}
         && exit 1

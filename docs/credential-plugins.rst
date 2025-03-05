@@ -1,7 +1,7 @@
 .. _ug_credential_plugins:
 
 Secret Management System
-=============================
+========================
 
 .. index::
    single: credentials
@@ -13,7 +13,7 @@ Users and admins upload machine and cloud credentials so that automation can acc
 These external secret values will be fetched prior to running a playbook that needs them.
 
 Configure and link secret lookups
------------------------------------
+---------------------------------
 
 When configuring AWX to pull a secret from a 3rd-party system, it is in essence linking credential fields to external systems. To link a credential field to a value stored in an external system, select the external credential corresponding to that system and provide metadata to look up the desired value. The metadata input fields are part of the external credential type definition of the source credential.
 

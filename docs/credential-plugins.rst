@@ -24,7 +24,7 @@ AWX provides a credential plugin interface for developers, integrators, admins, 
 
 Use the AWX User Interface to configure and use each of the supported 3-party secret management systems.
 
-1. First, create an external credential for authenticating with the secret management system. At minimum, provide a name for the external credential and select your desired secret lookup from the **Credential Type** drop-down menu.
+1. First, create an external credential for authenticating with the secret management system. At minimum, provide a name for the external credential and select your desired secret lookup from the :guilabel:`Credential Type` drop-down menu.
 
 
 2. Navigate to the credential form of the target credential and link one or more input fields to the external credential along with metadata for locating the secret in the external system. In this example, the *Demo Credential* is the target credential.
@@ -36,12 +36,12 @@ Use the AWX User Interface to configure and use each of the supported 3-party se
 .. |key| image:: _static/images/key-mgmt-button.png
    :alt: Icon for managing external credentials
 
-4. Select the credential you want to link to, and enter the **Metadata** of the input source. Metadata is specific to the input source you select.
+4. Select the credential you want to link to, and enter the :guilabel:`Metadata` of the input source. Metadata is specific to the input source you select.
 
-5. Click **Test** to verify connection to the secret management system. If the lookup is unsuccessful, an error message with a noted exception displays.
+5. Click :guilabel:`Test` to verify connection to the secret management system. If the lookup is unsuccessful, an error message with a noted exception displays.
 
-6. When done, click **OK**. This closes the prompt window and returns you to the Details screen of your target credential. **Repeat these steps**, starting with :ref:`step 3 above <ag_credential_plugins_link_step>` to complete the remaining input fields for the target credential. By linking the information in this manner, AWX retrieves sensitive information, such as username, password, keys, certificates, and tokens from the 3rd-party management systems and populates that data into the remaining fields of the target credential form.
+6. When done, click :guilabel:`OK`. This closes the prompt window and returns you to the Details screen of your target credential. **Repeat these steps**, starting with :ref:`step 3 above <ag_credential_plugins_link_step>` to complete the remaining input fields for the target credential. By linking the information in this manner, AWX retrieves sensitive information, such as username, password, keys, certificates, and tokens from the 3rd-party management systems and populates that data into the remaining fields of the target credential form.
 
 7. If necessary, supply any information manually for those fields that do not use linking as a way of retrieving sensitive information.
 
-8. Click **Save** when done.
+8. Click :guilabel:`Save` when done.

@@ -6,4 +6,6 @@ Sphinx  # main docs framework
 sphinx-autodoc-typehints  # gets function param types from annotations
 sphinx-issues  # Sphinx roles providing support for linking GitHub
 sphinx-tabs  # Sphinx directives providing support for HTML tabs
+sphinxawesome-codelinter  # lints snippets of embedded code
 sphinxcontrib-apidoc  # automatic API pages generator
+yamllint  # called by `sphinxawesome-codelinter`

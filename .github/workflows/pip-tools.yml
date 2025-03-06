@@ -87,6 +87,7 @@ jobs:
         lock-file-env:
         - build-dists
         - build-docs
+        - codelinter-docs
         - coverage-docs
         - doctest-docs
         - linkcheck-docs
@@ -105,6 +106,8 @@ jobs:
         - lock-file-env: build-dists
           lock-file-extra-input: pyproject.toml
         - lock-file-env: build-docs
+          lock-file-extra-input: ''
+        - lock-file-env: codelinter-docs
           lock-file-extra-input: ''
         - lock-file-env: coverage-docs
           lock-file-extra-input: ''

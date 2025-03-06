@@ -76,6 +76,7 @@ extensions = [
     'sphinx_autodoc_typehints',  # gets function param types from annotations
     'sphinx_issues',  # implements `:issue:`, `:pr:` and other GH-related roles
     'sphinx_tabs.tabs',
+    'sphinxawesome.codelinter',  # checks code blocks with linters
     'sphinxcontrib.apidoc',
 
     # In-tree extensions:
@@ -134,6 +135,13 @@ always_use_bars_union = True
 typehints_defaults = 'comma'
 typehints_use_signature = True
 typehints_use_signature_return = True
+
+# -- Options for sphinxawesome.codelinter extension --------------------------
+
+codelinter_languages = {
+    'json': 'python -Im json.tool',
+    'yaml': 'python -Im yamllint -',
+}
 
 # -- Options for sphinxcontrib.apidoc extension ------------------------------
 

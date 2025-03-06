@@ -515,6 +515,7 @@ jobs:
         - pre-commit
         - metadata-validation
         - build-docs
+        - codelinter-docs
         - coverage-docs
         - doctest-docs
         - linkcheck-docs

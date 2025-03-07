@@ -23,6 +23,7 @@
 
 credentials
 credential-plugins
+inventories
 inventory-plugins
 inventory-plugins-templates
 changelog

@@ -127,6 +127,8 @@ repos:
   - id: check-json
   - id: check-symlinks
   - id: check-yaml
+    exclude: >-
+      ^docs/_static/samples/containergroup-sa\.yml$
   #  args:
   #  - --unsafe
   - id: detect-private-key

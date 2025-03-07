@@ -185,6 +185,10 @@ linkcheck_ignore = [
     r'^https://chat\.ansible\.im/#',  # these render fully on front-end
     r'^https://matrix\.to/#',  # these render fully on front-end from anchors
 ]
+linkcheck_anchors_ignore_for_url = (
+    r'^https://ansible\.r(eadthedocs|tfd)\.io'
+    r'/projects/awx/en/latest/rest_api/api_ref\.html$',
+)
 linkcheck_workers = 25
 
 # -- Options for sphinx.ext.autosectionlabel extension -----------------------

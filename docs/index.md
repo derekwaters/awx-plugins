@@ -21,6 +21,7 @@
 :caption: Contents
 :hidden: true
 
+credentials
 credential-plugins
 inventory-plugins
 inventory-plugins-templates

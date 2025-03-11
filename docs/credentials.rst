@@ -101,7 +101,7 @@ Credential Types
 ----------------
 
 .. index::
-   single: credentials; types
+   pair: credentials; types
    single: credential types
 
 The following credential types are provided with AWX:

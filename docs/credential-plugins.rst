@@ -3,6 +3,11 @@
 Secret Management System
 ========================
 
+.. index::
+   single: credentials
+   pair: credential; plugins
+   pair: secret management; credential
+
 Users and admins upload machine and cloud credentials so that automation can access machines and external services on their behalf. By default, sensitive credential values (such as SSH passwords, SSH private keys, API tokens for cloud services) are stored in the database after being encrypted. With external credentials backed by credential plugins, you can map credential fields (like a password or an SSH Private key) to values stored in a secret management system instead of providing them to AWX directly. AWX currently provides the ability for users to create their own credential plugins.
 
 These external secret values will be fetched prior to running a playbook that needs them.

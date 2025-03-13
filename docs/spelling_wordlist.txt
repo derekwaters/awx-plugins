@@ -13,12 +13,15 @@ ec2
 edu
 Hashi
 hasn
+hostvars
 https
+ini
 Kerberos
 keylogging
 Kubernetes
 lookups
 namespace
+natively
 OAuth
 OpenShift
 Ovirt
@@ -26,6 +29,8 @@ ovirt
 PEM
 Pre
 pre
+refspec
+selinux
 Submodules
 Subpackages
 sudo

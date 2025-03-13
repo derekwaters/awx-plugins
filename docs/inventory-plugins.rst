@@ -1,7 +1,7 @@
 .. _ug_inventories_plugins:
 
 Inventory Plugins
-===================
+=================
 
 .. index::
    pair: inventories; plugins

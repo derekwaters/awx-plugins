@@ -24,7 +24,7 @@ AWX provides a credential plugin interface for developers, integrators, admins, 
 
 Use the AWX User Interface to configure and use each of the supported 3-party secret management systems.
 
-1. First, create an external credential for authenticating with the secret management system. At minimum, provide a name for the external credential and select your desired secret lookup from the :guilabel:`Credential Type` drop-down menu.
+1. First, create an external credential for authenticating with the secret management system. See :ref:`ug_credentials_add`. At minimum, provide a name for the external credential and select your desired secret lookup from the :guilabel:`Credential Type` drop-down menu.
 
 
 2. Navigate to the credential form of the target credential and link one or more input fields to the external credential along with metadata for locating the secret in the external system. In this example, the *Demo Credential* is the target credential.

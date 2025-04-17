@@ -1,5 +1,5 @@
 # FIXME: the following violations must be addressed gradually and unignored
-# mypy: disable-error-code="import-untyped, no-untyped-def"
+# mypy: disable-error-code="no-untyped-def"
 
 from awx_plugins.interfaces._temporary_private_django_api import (  # noqa: WPS436
     gettext_noop as _,
@@ -7,7 +7,10 @@ from awx_plugins.interfaces._temporary_private_django_api import (  # noqa: WPS4
 
 from azure.identity import ClientSecretCredential
 from azure.keyvault.secrets import SecretClient
-from msrestazure import azure_cloud
+# NOTE: `msrestazure` is deprecated and does not provide usable typing.
+# NOTE: This suppression should be replaced by in-tree type stubs.
+# NOTE: Alternatively, the dependency can be replaced.
+from msrestazure import azure_cloud  # type: ignore[import-untyped]
 
 from .plugin import CredentialPlugin
 

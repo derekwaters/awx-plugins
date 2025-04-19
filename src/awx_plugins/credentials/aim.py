@@ -80,15 +80,15 @@ aim_inputs = {
 
 def aim_backend(**kwargs):
     url = kwargs['url']
-    client_cert = kwargs.get('client_cert', None)
-    client_key = kwargs.get('client_key', None)
+    client_cert = kwargs.get('client_cert')
+    client_key = kwargs.get('client_key')
     verify = kwargs['verify']
     webservice_id = kwargs.get('webservice_id', '')
     app_id = kwargs['app_id']
     object_query = kwargs['object_query']
     object_query_format = kwargs['object_query_format']
     object_property = kwargs.get('object_property', '')
-    reason = kwargs.get('reason', None)
+    reason = kwargs.get('reason')
     if webservice_id == '':
         webservice_id = 'AIMWebService'
 
@@ -136,7 +136,7 @@ def aim_backend(**kwargs):
         object_property = 'Content'
     elif object_property.lower() == 'address':
         object_property = 'Address'
-    elif object_property not in res:
+    elif object_property not in res:  # noqa: WPS504  # FIXME
         raise KeyError(
             f'Property {object_property} not found in object, available properties: Username, Password and Address',
         )

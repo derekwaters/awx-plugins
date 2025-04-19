@@ -97,8 +97,7 @@ def tss_backend(**kwargs):
 
     if isinstance(secret.fields[kwargs['secret_field']].value, str) == False:
         return secret.fields[kwargs['secret_field']].value.text
-    else:
-        return secret.fields[kwargs['secret_field']].value
+    return secret.fields[kwargs['secret_field']].value
 
 
 tss_plugin = CredentialPlugin(

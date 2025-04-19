@@ -221,7 +221,8 @@ class openstack(PluginFileInjector):
         openstack_data = _openstack_data(cred)
 
         openstack_data['clouds']['devstack']['private'] = inventory_update.source_vars_dict.get(
-            'private', True, )
+            'private', True,
+        )
         ansible_variables = {
             'use_hostnames': True,
             'expand_hostvars': False,

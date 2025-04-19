@@ -96,7 +96,7 @@ def conjur_backend(**kwargs):
     username = quote(kwargs['username'], safe='')
     secret_path = quote(kwargs['secret_path'], safe='')
     version = kwargs.get('secret_version')
-    cacert = kwargs.get('cacert', None)
+    cacert = kwargs.get('cacert')
 
     auth_kwargs = {
         'headers': {'Content-Type': 'text/plain', 'Accept-Encoding': 'base64'},

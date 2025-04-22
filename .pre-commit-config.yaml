@@ -32,6 +32,20 @@ repos:
     - file
     - symlink
 
+- repo: https://github.com/astral-sh/ruff-pre-commit.git
+  rev: v0.11.6
+  hooks:
+  - id: ruff
+    args:
+    # Ref: https://docs.astral.sh/ruff/formatter/#conflicting-lint-rules
+    - --fix  # NOTE: When `--fix` is used, linting should be before ruff-format
+
+- repo: https://github.com/astral-sh/ruff-pre-commit.git
+  rev: v0.11.6
+  hooks:
+  - id: ruff-format
+    alias: ruff-format-first-pass
+
 - repo: https://github.com/asottile/add-trailing-comma.git
   rev: v3.1.0
   hooks:
@@ -40,10 +54,8 @@ repos:
 - repo: https://github.com/astral-sh/ruff-pre-commit.git
   rev: v0.11.6
   hooks:
-  - id: ruff
-    args:
-    # Ref: https://docs.astral.sh/ruff/formatter/#conflicting-lint-rules
-    - --fix  # NOTE: When `--fix` is used, linting should be before ruff-format
+  - id: ruff-format
+    alias: ruff-format-second-pass
 
 - repo: https://github.com/Lucas-C/pre-commit-hooks.git
   rev: v1.5.5

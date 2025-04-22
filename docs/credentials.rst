@@ -133,7 +133,7 @@ Selecting this credential allows AWX to access Galaxy or use a collection publis
 .. |Credentials - create galaxy credential| image:: _static/images/credentials-create-galaxy-credential.png
     :alt: Credentials - create galaxy credential form
 
-To populate the Server URL fields, refer to the `Galaxy community documentation <https://ansible.readthedocs.io/projects/galaxy-ng/en/latest/community/userguide/>`_ for information.
+To populate the Server URL fields, refer to the `Galaxy community documentation <https://ansible.readthedocs.io/projects/galaxy-ng/en/latest/usage_guide/installation.html>`_ for information.
 
 
 .. _ug_credentials_registry:

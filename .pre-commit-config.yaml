@@ -37,38 +37,13 @@ repos:
   hooks:
   - id: add-trailing-comma
 
-- repo: https://github.com/asottile/pyupgrade.git
-  rev: v3.19.1
+- repo: https://github.com/astral-sh/ruff-pre-commit.git
+  rev: v0.11.6
   hooks:
-  - id: pyupgrade
+  - id: ruff
     args:
-    - --py311-plus
-
-- repo: https://github.com/PyCQA/isort.git
-  rev: 5.13.2
-  hooks:
-  - id: isort
-    args:
-    - --honor-noqa
-
-- repo: local
-  hooks:
-  - id: docformatter
-    name: docformatter
-    description: Formats docstrings to follow PEP 257.
-    entry: python -Im docformatter
-    additional_dependencies:
-    - docformatter == 1.7.5
-    args:
-    - --in-place
-    language: python
-    types:
-    - python
-
-- repo: https://github.com/hhatto/autopep8.git
-  rev: v2.3.1
-  hooks:
-  - id: autopep8
+    # Ref: https://docs.astral.sh/ruff/formatter/#conflicting-lint-rules
+    - --fix  # NOTE: When `--fix` is used, linting should be before ruff-format
 
 - repo: https://github.com/Lucas-C/pre-commit-hooks.git
   rev: v1.5.5
@@ -185,7 +160,7 @@ repos:
     - flake8-logging ~= 1.6.0
     - flake8-logging-format ~= 2024.24.12
     - flake8-pytest-style ~= 2.0.0
-    - wemake-python-styleguide ~= 0.19.2
+    - wemake-python-styleguide ~= 1.1.0
     language_version: python3
 
 - repo: https://github.com/pre-commit/mirrors-mypy.git

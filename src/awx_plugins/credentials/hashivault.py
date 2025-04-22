@@ -309,7 +309,7 @@ def method_auth(**kwargs):
     auth_path = kwargs.get('auth_path') or kwargs['default_auth_path']
 
     url = urljoin(kwargs['url'], 'v1')
-    cacert = kwargs.get('cacert', None)
+    cacert = kwargs.get('cacert')
 
     sess = requests.Session()
     sess.mount(url, requests.adapters.HTTPAdapter(max_retries=5))
@@ -342,9 +342,9 @@ def kv_backend(**kwargs):
     token = handle_auth(**kwargs)
     url = kwargs['url']
     secret_path = kwargs['secret_path']
-    secret_backend = kwargs.get('secret_backend', None)
-    secret_key = kwargs.get('secret_key', None)
-    cacert = kwargs.get('cacert', None)
+    secret_backend = kwargs.get('secret_backend')
+    secret_key = kwargs.get('secret_key')
+    cacert = kwargs.get('cacert')
     api_version = kwargs['api_version']
 
     request_kwargs = {
@@ -376,11 +376,10 @@ def kv_backend(**kwargs):
                 mount_point, path = secret_path, []
             # https://www.vaultproject.io/api/secret/kv/kv-v2.html#read-secret-version
             path_segments = [mount_point, 'data'] + path
+    elif secret_backend:
+        path_segments = [secret_backend, secret_path]
     else:
-        if secret_backend:
-            path_segments = [secret_backend, secret_path]
-        else:
-            path_segments = [secret_path]
+        path_segments = [secret_path]
 
     request_url = urljoin(url, '/'.join(['v1'] + path_segments)).rstrip('/')
     with CertFiles(cacert) as cert:
@@ -417,7 +416,7 @@ def ssh_backend(**kwargs):
     url = urljoin(kwargs['url'], 'v1')
     secret_path = kwargs['secret_path']
     role = kwargs['role']
-    cacert = kwargs.get('cacert', None)
+    cacert = kwargs.get('cacert')
 
     request_kwargs = {
         'timeout': 30,

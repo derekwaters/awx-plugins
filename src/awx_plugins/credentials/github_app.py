@@ -17,7 +17,10 @@ from awx_plugins.interfaces._temporary_private_django_api import (  # noqa: WPS4
     gettext_noop as _,
 )
 
-from github import Auth as Auth, Github
+from github import (
+    Auth as Auth,
+    Github,
+)
 from github.Consts import DEFAULT_BASE_URL as PUBLIC_GH_API_URL
 from github.GithubException import (
     BadAttributeException,
@@ -214,7 +217,7 @@ def extract_github_app_install_token(  # noqa: WPS210
 
     Github(  # Generate a GitHub App authentication token
         auth=auth,
-        base_url=github_api_url if github_api_url else PUBLIC_GH_API_URL,
+        base_url=github_api_url or PUBLIC_GH_API_URL,
     )
 
     doc_url = (

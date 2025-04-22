@@ -4,7 +4,7 @@ import json
 from dataclasses import dataclass
 from pathlib import Path
 from types import MappingProxyType
-from typing import Generic, Never, TypeVar
+from typing import Generic, TypeVar
 
 import pytest
 from pytest_subtests import SubTests
@@ -122,7 +122,7 @@ class BaseEnvFile(Generic[ExpectedDataType]):
         self: 'BaseEnvFile[ExpectedDataType]',
         env: EnvVarsType,
         private_data_dir: str,
-    ) -> None | Never:
+    ) -> None:
         """Override to ensure file contains expected data.
 
         :param env: environment to get the filename from

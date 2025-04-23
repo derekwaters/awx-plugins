@@ -117,13 +117,13 @@ def handle_auth(**kwargs):
 def get_ID(**kwargs):
     endpoint = urljoin(kwargs['url'], '/Redrock/query')
     name = " Name='{}' and User='{}'".format(
-        kwargs['system_name'], kwargs['acc_name'],
+        kwargs['system_name'],
+        kwargs['acc_name'],
     )
     # FIXME: sanitize input
     query = f'Select ID from VaultAccount where {name}'  # noqa: S608
     post_headers = {
-        'Authorization': 'Bearer ' +
-        kwargs['access_token'],
+        'Authorization': f'Bearer {kwargs["access_token"]}',
         'X-CENTRIFY-NATIVE-CLIENT': 'true',
     }
     response = requests.post(
@@ -150,7 +150,7 @@ def get_ID(**kwargs):
 def get_passwd(**kwargs):
     endpoint = urljoin(kwargs['url'], '/ServerManage/CheckoutPassword')
     post_headers = {
-        'Authorization': f"Bearer {kwargs['access_token'] !s}",
+        'Authorization': f'Bearer {kwargs["access_token"]!s}',
         'X-CENTRIFY-NATIVE-CLIENT': 'true',
     }
     response = requests.post(

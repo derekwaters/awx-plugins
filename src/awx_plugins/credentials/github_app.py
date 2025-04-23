@@ -165,26 +165,27 @@ def _is_app_or_client_id(app_or_client_id_candidate: str | int) -> bool:
 
 
 def _assert_ids_look_acceptable(
-    app_or_client_id: int | str, install_id: int | str,
+    app_or_client_id: int | str,
+    install_id: int | str,
 ) -> None:
     if not _is_app_or_client_id(app_or_client_id):
         raise ValueError(
             'Expected GitHub App or Client ID to be an integer or a string '
             f'starting with `Iv1.` followed by 16 hexadecimal digits, '
-            f'but got {app_or_client_id !r}',
+            f'but got {app_or_client_id!r}',
         )
 
     if isinstance(app_or_client_id, str) and _is_client_id(app_or_client_id):
         raise ValueError(
             'Expected GitHub App ID must be an integer or a string '
-            f'with an all-digit value, but got {app_or_client_id !r}. '
+            f'with an all-digit value, but got {app_or_client_id!r}. '
             'Client IDs are currently unsupported.',
         )
 
     if not _is_intish(install_id):
         raise ValueError(
             'Expected GitHub App Installation ID to be an integer'
-            f' but got {install_id !r}',
+            f' but got {install_id!r}',
         )
 
 
@@ -244,22 +245,22 @@ def extract_github_app_install_token(  # noqa: WPS210
     ) as github_install_not_found_exc:
         raise ValueError(
             'Failed to retrieve a GitHub installation token from '
-            f'{github_api_url !s} using {app_install_context !s}. '
-            f'Is the app installed? {doc_url !s}.'
-            f'\n\n{github_install_not_found_exc !s}',
+            f'{github_api_url!s} using {app_install_context!s}. '
+            f'Is the app installed? {doc_url!s}.'
+            f'\n\n{github_install_not_found_exc!s}',
         ) from github_install_not_found_exc
     except GithubException as pygithub_catchall_exc:  # type: ignore[misc]
         raise RuntimeError(
             'An unexpected error happened while talking to GitHub API @ '
-            f'{github_api_url !s} ({app_install_context !s}). '
+            f'{github_api_url!s} ({app_install_context!s}). '
             'Is the app or client ID correct? And the private RSA key? '
-            f'{doc_url !s}.\n\n{pygithub_catchall_exc !s}',
+            f'{doc_url!s}.\n\n{pygithub_catchall_exc!s}',
         ) from pygithub_catchall_exc
     except BadAttributeException as github_broken_exc:  # type: ignore[misc]
         raise RuntimeError(
-            f'Broken GitHub @ {github_api_url !s} with '
-            f'{app_install_context !s}. It is a bug, please report it to the '
-            f'developers.\n\n{github_broken_exc !s}',
+            f'Broken GitHub @ {github_api_url!s} with '
+            f'{app_install_context!s}. It is a bug, please report it to the '
+            f'developers.\n\n{github_broken_exc!s}',
         ) from github_broken_exc
 
 

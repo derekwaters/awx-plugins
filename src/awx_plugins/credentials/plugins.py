@@ -651,10 +651,15 @@ rhv = ManagedCredentialType(
     inputs={
         'fields': [
             {
-                'id': 'host', 'label': gettext_noop('Host (Authentication URL)'), 'type': 'string', 'help_text': gettext_noop('The host to authenticate with.'),
+                'id': 'host',
+                'label': gettext_noop('Host (Authentication URL)'),
+                'type': 'string',
+                'help_text': gettext_noop('The host to authenticate with.'),
             },
             {
-                'id': 'username', 'label': gettext_noop('Username'), 'type': 'string',
+                'id': 'username',
+                'label': gettext_noop('Username'),
+                'type': 'string',
             },
             {
                 'id': 'password',
@@ -666,7 +671,9 @@ rhv = ManagedCredentialType(
                 'id': 'ca_file',
                 'label': gettext_noop('CA File'),
                 'type': 'string',
-                'help_text': gettext_noop('Absolute file path to the CA file to use (optional)'),
+                'help_text': gettext_noop(
+                    'Absolute file path to the CA file to use (optional)',
+                ),
             },
         ],
         'required': ['host', 'username', 'password'],

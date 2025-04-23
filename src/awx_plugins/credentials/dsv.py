@@ -115,7 +115,8 @@ def dsv_backend(**kwargs):
     tenant_name = kwargs['tenant']
     tenant_tld = kwargs.get('tld', 'com')
     tenant_url_template = kwargs.get(
-        'url_template', 'https://{}.secretsvaultcloud.{}',
+        'url_template',
+        'https://{}.secretsvaultcloud.{}',
     )
     client_id = kwargs['client_id']
     client_secret = kwargs['client_secret']

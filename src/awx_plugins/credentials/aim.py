@@ -24,7 +24,9 @@ aim_inputs = {
             'id': 'webservice_id',
             'label': _('Web Service ID'),
             'type': 'string',
-            'help_text': _('The CCP Web Service ID. Leave blank to default to AIMWebService.'),
+            'help_text': _(
+                'The CCP Web Service ID. Leave blank to default to AIMWebService.',
+            ),
         },
         {
             'id': 'app_id',
@@ -58,20 +60,32 @@ aim_inputs = {
             'id': 'object_query',
             'label': _('Object Query'),
             'type': 'string',
-            'help_text': _('Lookup query for the object. Ex: Safe=TestSafe;Object=testAccountName123'),
+            'help_text': _(
+                'Lookup query for the object. Ex: Safe=TestSafe;Object=testAccountName123',
+            ),
         },
-        {'id': 'object_query_format', 'label': _('Object Query Format'), 'type': 'string', 'default': 'Exact', 'choices': ['Exact', 'Regexp']},
+        {
+            'id': 'object_query_format',
+            'label': _('Object Query Format'),
+            'type': 'string',
+            'default': 'Exact',
+            'choices': ['Exact', 'Regexp'],
+        },
         {
             'id': 'object_property',
             'label': _('Object Property'),
             'type': 'string',
-            'help_text': _('The property of the object to return. Available properties: Username, Password and Address.'),
+            'help_text': _(
+                'The property of the object to return. Available properties: Username, Password and Address.',
+            ),
         },
         {
             'id': 'reason',
             'label': _('Reason'),
             'type': 'string',
-            'help_text': _('Object request reason. This is only needed if it is required by the object\'s policy.'),
+            'help_text': _(
+                "Object request reason. This is only needed if it is required by the object's policy.",
+            ),
         },
     ],
     'required': ['url', 'app_id', 'object_query'],

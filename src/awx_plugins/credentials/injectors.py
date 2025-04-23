@@ -33,7 +33,8 @@ def aws(
     if cred.has_input('security_token'):
         env['AWS_SECURITY_TOKEN'] = str(
             cred.get_input(
-                'security_token', default='',
+                'security_token',
+                default='',
             ),
         )
         env['AWS_SESSION_TOKEN'] = env['AWS_SECURITY_TOKEN']
@@ -133,7 +134,8 @@ def _openstack_data(cred: Credential):
     if cred.has_input('project_domain_name'):
         openstack_auth['project_domain_name'] = str(
             cred.get_input(
-                'project_domain_name', default='',
+                'project_domain_name',
+                default='',
             ),
         )
     if cred.has_input('domain'):
@@ -154,7 +156,8 @@ def _openstack_data(cred: Credential):
     if cred.has_input('region'):
         openstack_data['clouds']['devstack']['region_name'] = str(
             cred.get_input(
-                'region', default='',
+                'region',
+                default='',
             ),
         )
 
@@ -181,9 +184,9 @@ def openstack(
 
 
 def kubernetes_bearer_token(
-        cred: Credential,
-        env: EnvVarsType,
-        private_data_dir: str,
+    cred: Credential,
+    env: EnvVarsType,
+    private_data_dir: str,
 ) -> None:
     env['K8S_AUTH_HOST'] = str(cred.get_input('host', default=''))
     env['K8S_AUTH_API_KEY'] = str(cred.get_input('bearer_token', default=''))
@@ -196,7 +199,8 @@ def kubernetes_bearer_token(
             os.chmod(path, stat.S_IRUSR | stat.S_IWUSR)
             f.write(str(cred.get_input('ssl_ca_cert')))
         env['K8S_AUTH_SSL_CA_CERT'] = get_incontainer_path(
-            path, private_data_dir,
+            path,
+            private_data_dir,
         )
     else:
         env['K8S_AUTH_VERIFY_SSL'] = 'False'
@@ -212,7 +216,8 @@ def terraform(
         os.chmod(path, stat.S_IRUSR | stat.S_IWUSR)
         f.write(str(cred.get_input('configuration')))
     env['TF_BACKEND_CONFIG_FILE'] = get_incontainer_path(
-        path, private_data_dir,
+        path,
+        private_data_dir,
     )
     # Handle env variables for GCP account credentials
     if cred.has_input('gce_credentials'):
@@ -223,5 +228,6 @@ def terraform(
             os.chmod(path, stat.S_IRUSR | stat.S_IWUSR)
             f.write(str(cred.get_input('gce_credentials')))
         env['GOOGLE_BACKEND_CREDENTIALS'] = get_incontainer_path(
-            path, private_data_dir,
+            path,
+            private_data_dir,
         )

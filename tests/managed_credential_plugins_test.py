@@ -1,4 +1,5 @@
 """Individual ManagedCredentialType plugin tests."""
+
 import configparser
 import json
 from dataclasses import dataclass
@@ -146,7 +147,9 @@ class JsonEnvFile(BaseEnvFile[dict[str, str] | MappingProxyType[str, str]]):
         :param private_data_dir: directory to read the file from
         :returns: None
         """
-        with open(to_host_path(str(env[self.env_key]), private_data_dir)) as fh:
+        with open(
+            to_host_path(str(env[self.env_key]), private_data_dir),
+        ) as fh:
             assert self.expected_data.items() == json.load(fh).items()
 
 
@@ -164,7 +167,9 @@ class StringEnvFile(BaseEnvFile[str]):
         :param private_data_dir: directory to read the file from
         :returns: None
         """
-        with open(to_host_path(str(env[self.env_key]), private_data_dir)) as fh:
+        with open(
+            to_host_path(str(env[self.env_key]), private_data_dir),
+        ) as fh:
             assert self.expected_data == fh.read()
 
 
@@ -203,7 +208,9 @@ class YamlEnvFile(BaseEnvFile[dict[str, IniEntryDataType]]):
         :param private_data_dir: directory to read the file from
         :returns: None
         """
-        with open(to_host_path(str(env[self.env_key]), private_data_dir)) as fh:
+        with open(
+            to_host_path(str(env[self.env_key]), private_data_dir),
+        ) as fh:
             assert self.expected_data.items() == yaml.safe_load(fh).items()
 
 
@@ -275,7 +282,8 @@ class YamlEnvFile(BaseEnvFile[dict[str, IniEntryDataType]]):
             {},
             [
                 JsonEnvFile(
-                    'GCE_CREDENTIALS_FILE_PATH', {
+                    'GCE_CREDENTIALS_FILE_PATH',
+                    {
                         'type': 'service_account',
                         'private_key': EXAMPLE_PRIVATE_KEY,
                         'client_email': 'tony',
@@ -351,7 +359,8 @@ class YamlEnvFile(BaseEnvFile[dict[str, IniEntryDataType]]):
             {},
             [
                 YamlEnvFile(
-                    'OS_CLIENT_CONFIG_FILE', {
+                    'OS_CLIENT_CONFIG_FILE',
+                    {
                         'clouds': {
                             'devstack': {
                                 'auth': {
@@ -379,7 +388,8 @@ class YamlEnvFile(BaseEnvFile[dict[str, IniEntryDataType]]):
             {},
             [
                 IniEnvFile(
-                    'OVIRT_INI_PATH', {
+                    'OVIRT_INI_PATH',
+                    {
                         'ovirt': {
                             'ovirt_url': 'rick.example.org',
                             'ovirt_username': 'rick',
@@ -402,7 +412,8 @@ class YamlEnvFile(BaseEnvFile[dict[str, IniEntryDataType]]):
             {},
             [
                 IniEnvFile(
-                    'OVIRT_INI_PATH', {
+                    'OVIRT_INI_PATH',
+                    {
                         'ovirt': {
                             'ovirt_url': 'rick.example.org',
                             'ovirt_username': 'rick',

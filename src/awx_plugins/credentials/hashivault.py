@@ -324,10 +324,13 @@ def method_auth(**kwargs):
         request_kwargs['verify'] = cert
         # TLS client certificate support
         if kwargs.get('client_cert_public') and kwargs.get(
-                'client_cert_private',
+            'client_cert_private',
         ):
             # Add client cert to requests Session before making call
-            with CertFiles(kwargs['client_cert_public'], key=kwargs['client_cert_private']) as client_cert:
+            with CertFiles(
+                kwargs['client_cert_public'],
+                key=kwargs['client_cert_private'],
+            ) as client_cert:
                 sess.cert = client_cert
                 resp = sess.post(request_url, **request_kwargs)
         else:
@@ -369,8 +372,9 @@ def kv_backend(**kwargs):
             path_segments = [secret_backend, 'data', secret_path]
         else:
             try:
-                mount_point, * \
-                    path = pathlib.Path(secret_path.lstrip(os.sep)).parts
+                mount_point, *path = pathlib.Path(
+                    secret_path.lstrip(os.sep),
+                ).parts
                 '/'.join(path)
             except Exception:
                 mount_point, path = secret_path, []
@@ -401,9 +405,13 @@ def kv_backend(**kwargs):
 
     if secret_key:
         try:
-            if (secret_key != 'data') and (  # noqa: S105; not a password
+            if (
+                (secret_key != 'data')
+                and (  # noqa: S105; not a password
                     secret_key not in json['data']
-            ) and ('data' in json['data']):
+                )
+                and ('data' in json['data'])
+            ):
                 return json['data']['data'][secret_key]
             return json['data'][secret_key]
         except KeyError:
@@ -427,9 +435,7 @@ def ssh_backend(**kwargs):
         'public_key': kwargs['public_key'],
     }
     if kwargs.get('valid_principals'):
-        request_kwargs['json'][
-            'valid_principals'
-        ] = kwargs['valid_principals']  # type: ignore[index]  # FIXME
+        request_kwargs['json']['valid_principals'] = kwargs['valid_principals']  # type: ignore[index]  # FIXME
 
     sess = requests.Session()
     sess.mount(url, requests.adapters.HTTPAdapter(max_retries=5))

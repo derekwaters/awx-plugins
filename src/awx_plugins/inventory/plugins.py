@@ -26,7 +26,9 @@ class PluginFileInjector:
     # every source should have collection, these are for the collection name
     namespace = None
     collection = None
-    collection_migration = '2.9'  # Starting with this version, we use collections
+    collection_migration = (
+        '2.9'  # Starting with this version, we use collections
+    )
     use_fqcn = False  # plugin: name versus plugin: namespace.collection.name
 
     # TODO: delete this method and update unit tests
@@ -65,24 +67,24 @@ class PluginFileInjector:
         Note that a plugin value of '' should still be overridden.
         """
         if self.plugin_name is not None:
-            source_vars['plugin'] = f"""{
-                self.namespace
-            }.{
-                self.collection
-            }.{
-                self.plugin_name
-            }""" if self.use_fqcn else self.plugin_name
+            source_vars['plugin'] = (
+                f"""{self.namespace}.{self.collection}.{self.plugin_name}"""
+                if self.use_fqcn
+                else self.plugin_name
+            )
         return source_vars
 
     def build_env(
-            self,
-            inventory_update,
-            env,
-            private_data_dir,
-            private_data_files,
+        self,
+        inventory_update,
+        env,
+        private_data_dir,
+        private_data_files,
     ):
         injector_env = self.get_plugin_env(
-            inventory_update, private_data_dir, private_data_files,
+            inventory_update,
+            private_data_dir,
+            private_data_files,
         )
         env.update(injector_env)
         # All CLOUD_PROVIDERS sources implement as inventory plugin from
@@ -91,10 +93,10 @@ class PluginFileInjector:
         return env
 
     def _get_shared_env(
-            self,
-            inventory_update,
-            private_data_dir,
-            private_data_files,
+        self,
+        inventory_update,
+        private_data_dir,
+        private_data_files,
     ):  # noqa: DAR101, DAR201; FIXME
         """By default, we will apply the standard managed injectors."""
         if self.base_injector not in {'managed', 'template'}:
@@ -123,7 +125,11 @@ class PluginFileInjector:
             safe_env = injected_env.copy()
             args = []
             credential.credential_type.inject_credential(
-                credential, injected_env, safe_env, args, private_data_dir,
+                credential,
+                injected_env,
+                safe_env,
+                args,
+                private_data_dir,
             )
             # NOTE: safe_env is handled externally to injector class by build_safe_env static method
             # that means that managed injectors must only inject detectable env keys
@@ -131,10 +137,10 @@ class PluginFileInjector:
         return injected_env
 
     def get_plugin_env(
-            self,
-            inventory_update,
-            private_data_dir,
-            private_data_files,
+        self,
+        inventory_update,
+        private_data_dir,
+        private_data_files,
     ):
         env = self._get_shared_env(
             inventory_update,
@@ -145,7 +151,8 @@ class PluginFileInjector:
 
     def build_private_data(self, inventory_update, private_data_dir):
         return self.build_plugin_private_data(
-            inventory_update, private_data_dir,
+            inventory_update,
+            private_data_dir,
         )
 
     def build_plugin_private_data(self, inventory_update, private_data_dir):
@@ -220,8 +227,11 @@ class openstack(PluginFileInjector):
     def _get_clouds_dict(self, inventory_update, cred, private_data_dir):
         openstack_data = _openstack_data(cred)
 
-        openstack_data['clouds']['devstack']['private'] = inventory_update.source_vars_dict.get(
-            'private', True,
+        openstack_data['clouds']['devstack']['private'] = (
+            inventory_update.source_vars_dict.get(
+                'private',
+                True,
+            )
         )
         ansible_variables = {
             'use_hostnames': True,
@@ -231,7 +241,9 @@ class openstack(PluginFileInjector):
         provided_count = 0
         for var_name in ansible_variables:
             if var_name in inventory_update.source_vars_dict:
-                ansible_variables[var_name] = inventory_update.source_vars_dict[var_name]
+                ansible_variables[var_name] = (
+                    inventory_update.source_vars_dict[var_name]
+                )
                 provided_count += 1
         if provided_count:
             # Must we provide all 3 because the user provides any 1 of these??
@@ -244,18 +256,22 @@ class openstack(PluginFileInjector):
         private_data = {'credentials': {}}
 
         openstack_data = self._get_clouds_dict(
-            inventory_update, credential, private_data_dir,
+            inventory_update,
+            credential,
+            private_data_dir,
         )
         private_data['credentials'][credential] = yaml.safe_dump(
-            openstack_data, default_flow_style=False, allow_unicode=True,
+            openstack_data,
+            default_flow_style=False,
+            allow_unicode=True,
         )
         return private_data
 
     def get_plugin_env(
-            self,
-            inventory_update,
-            private_data_dir,
-            private_data_files,
+        self,
+        inventory_update,
+        private_data_dir,
+        private_data_files,
     ):
         env = super().get_plugin_env(
             inventory_update,
@@ -265,7 +281,8 @@ class openstack(PluginFileInjector):
         credential = inventory_update.get_cloud_credential()
         cred_data = private_data_files['credentials']
         env['OS_CLIENT_CONFIG_FILE'] = get_incontainer_path(
-            cred_data[credential], private_data_dir,
+            cred_data[credential],
+            private_data_dir,
         )
         return env
 
@@ -302,10 +319,10 @@ class satellite6(PluginFileInjector):
     use_fqcn = True
 
     def get_plugin_env(
-            self,
-            inventory_update,
-            private_data_dir,
-            private_data_files,
+        self,
+        inventory_update,
+        private_data_dir,
+        private_data_files,
     ):
         # this assumes that this is merged
         # https://github.com/ansible/ansible/pull/52693
@@ -319,7 +336,8 @@ class satellite6(PluginFileInjector):
             ret['FOREMAN_SERVER'] = credential.get_input('host', default='')
             ret['FOREMAN_USER'] = credential.get_input('username', default='')
             ret['FOREMAN_PASSWORD'] = credential.get_input(
-                'password', default='',
+                'password',
+                default='',
             )
         return ret
 
@@ -332,10 +350,10 @@ class satellite6_supported(PluginFileInjector):
     use_fqcn = True
 
     def get_plugin_env(
-            self,
-            inventory_update,
-            private_data_dir,
-            private_data_files,
+        self,
+        inventory_update,
+        private_data_dir,
+        private_data_files,
     ):
         # this assumes that this is merged
         # https://github.com/ansible/ansible/pull/52693
@@ -349,7 +367,8 @@ class satellite6_supported(PluginFileInjector):
             ret['FOREMAN_SERVER'] = credential.get_input('host', default='')
             ret['FOREMAN_USER'] = credential.get_input('username', default='')
             ret['FOREMAN_PASSWORD'] = credential.get_input(
-                'password', default='',
+                'password',
+                default='',
             )
         return ret
 
@@ -373,7 +392,8 @@ class terraform(PluginFileInjector):
                 os.chmod(path, stat.S_IRUSR | stat.S_IWUSR)
                 f.write(config_cred)
             ret['backend_config_files'] = get_incontainer_path(
-                path, private_data_dir,
+                path,
+                private_data_dir,
             )
         return ret
 
@@ -387,10 +407,10 @@ class terraform(PluginFileInjector):
         return private_data
 
     def get_plugin_env(
-            self,
-            inventory_update,
-            private_data_dir,
-            private_data_files,
+        self,
+        inventory_update,
+        private_data_dir,
+        private_data_files,
     ):
         env = super().get_plugin_env(
             inventory_update,
@@ -401,7 +421,8 @@ class terraform(PluginFileInjector):
         cred_data = private_data_files['credentials']
         if credential in cred_data:
             env['GOOGLE_BACKEND_CREDENTIALS'] = get_incontainer_path(
-                cred_data[credential], private_data_dir,
+                cred_data[credential],
+                private_data_dir,
             )
         return env
 
@@ -435,7 +456,10 @@ class insights(PluginFileInjector):
     use_fqcn = True
 
     def inventory_as_dict(self, inventory_update, private_data_dir):
-        inventory_data = super().inventory_as_dict(inventory_update, private_data_dir)
+        inventory_data = super().inventory_as_dict(
+            inventory_update,
+            private_data_dir,
+        )
         credential = inventory_update.get_cloud_credential()
         if credential.get_input('client_id', default=''):
             inventory_data['authentication'] = 'service_account'
@@ -452,7 +476,10 @@ class insights_supported(PluginFileInjector):
     use_fqcn = True
 
     def inventory_as_dict(self, inventory_update, private_data_dir):
-        inventory_data = super().inventory_as_dict(inventory_update, private_data_dir)
+        inventory_data = super().inventory_as_dict(
+            inventory_update,
+            private_data_dir,
+        )
         credential = inventory_update.get_cloud_credential()
         if credential.get_input('client_id', default=''):
             inventory_data['authentication'] = 'service_account'

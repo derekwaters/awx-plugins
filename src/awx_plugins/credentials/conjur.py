@@ -110,10 +110,15 @@ def conjur_backend(**kwargs):
         try:
             resp = requests.post(  # noqa: S113; FIXME: add a reasonable timeout
                 urljoin(
-                    url, '/'.join([
-                        'authn', account,
-                        username, 'authenticate',
-                    ]),
+                    url,
+                    '/'.join(
+                        [
+                            'authn',
+                            account,
+                            username,
+                            'authenticate',
+                        ],
+                    ),
                 ),
                 # timeout=1,
                 **auth_kwargs,
@@ -122,10 +127,16 @@ def conjur_backend(**kwargs):
         except requests.exceptions.HTTPError:
             resp = requests.post(  # noqa: S113; FIXME: add a reasonable timeout
                 urljoin(
-                    url, '/'.join([
-                        'api', 'authn', account,
-                        username, 'authenticate',
-                    ]),
+                    url,
+                    '/'.join(
+                        [
+                            'api',
+                            'authn',
+                            account,
+                            username,
+                            'authenticate',
+                        ],
+                    ),
                 ),
                 # timeout=1,
                 **auth_kwargs,
@@ -136,7 +147,9 @@ def conjur_backend(**kwargs):
     lookup_kwargs = {
         'headers': {
             'Authorization': 'Token token="{}"'.format(
-                token if _is_base64(token) else base64.b64encode(
+                token
+                if _is_base64(token)
+                else base64.b64encode(
                     token.encode('utf-8'),
                 ).decode('utf-8'),
             ),
@@ -146,10 +159,12 @@ def conjur_backend(**kwargs):
 
     # https://www.conjur.org/api.html#secrets-retrieve-a-secret-get
     path = urljoin(
-        url, '/'.join(['secrets', account, 'variable', secret_path]),
+        url,
+        '/'.join(['secrets', account, 'variable', secret_path]),
     )
     path_conjurcloud = urljoin(
-        url, '/'.join(['api', 'secrets', account, 'variable', secret_path]),
+        url,
+        '/'.join(['api', 'secrets', account, 'variable', secret_path]),
     )
     if version:
         ver = f'version={version}'

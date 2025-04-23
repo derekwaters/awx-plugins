@@ -12,7 +12,9 @@ from pip_constraint_helpers import (
 
 
 def generate_lock_for(
-    req_dir: str, toxenv: str, *pip_compile_extra_args: tuple[str, ...],
+    req_dir: str,
+    toxenv: str,
+    *pip_compile_extra_args: tuple[str, ...],
 ) -> None:
     """Generate a patform-specific lock file for given tox env.
 
@@ -22,16 +24,19 @@ def generate_lock_for(
         compile.
     """
     lock_file_name = get_constraint_file_path(
-        req_dir, toxenv, get_runtime_python_tag(),
+        req_dir,
+        toxenv,
+        get_runtime_python_tag(),
     )
     direct_deps_file_name = (
-        lock_file_name.parents[1]
-        / 'direct'
-        / f'{toxenv}.in'
+        lock_file_name.parents[1] / 'direct' / f'{toxenv}.in'
     )
     pip_compile_cmd = (
-        sys.executable, '-Im', 'piptools', 'compile',
-        f'--output-file={lock_file_name !s}',
+        sys.executable,
+        '-Im',
+        'piptools',
+        'compile',
+        f'--output-file={lock_file_name!s}',
         str(direct_deps_file_name),
         *pip_compile_extra_args,
     )

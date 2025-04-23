@@ -167,10 +167,10 @@ class TestDelineaImports:
         )
 
         for cls in (
-                DomainPasswordGrantAuthorizer,
-                PasswordGrantAuthorizer,
-                SecretServer,
-                ServerSecret,
+            DomainPasswordGrantAuthorizer,
+            PasswordGrantAuthorizer,
+            SecretServer,
+            ServerSecret,
         ):
             # assert this module as opposed to older thycotic.secrets.server
             assert cls.__module__ == 'delinea.secrets.server'

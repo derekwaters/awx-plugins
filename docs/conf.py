@@ -15,8 +15,7 @@ PROJECT_ROOT_DIR = DOCS_ROOT_DIR.parent.resolve()
 PROJECT_SRC_DIR = PROJECT_ROOT_DIR / 'src'
 IS_RTD_ENV = os.getenv('READTHEDOCS', 'False') == 'True'
 IS_RELEASE_ON_RTD = (
-    IS_RTD_ENV
-    and os.environ['READTHEDOCS_VERSION_TYPE'] == 'tag'
+    IS_RTD_ENV and os.environ['READTHEDOCS_VERSION_TYPE'] == 'tag'
 )
 tags: set[str]
 if IS_RELEASE_ON_RTD:
@@ -46,14 +45,16 @@ copyright = author  # pylint: disable=redefined-builtin
 # The full version, including alpha/beta/rc tags
 release = (
     # pylint: disable-next=used-before-assignment
-    'unversioned' if tags.has('is_unversioned')  # noqa: F821
+    'unversioned'
+    if tags.has('is_unversioned')  # noqa: F821
     else _retrieve_metadata_version_for(project)
 )
 
 # The short X.Y version
 version = (
     # pylint: disable-next=used-before-assignment
-    'unversioned' if tags.has('is_unversioned')  # noqa: F821
+    'unversioned'
+    if tags.has('is_unversioned')  # noqa: F821
     else '.'.join(release.split('.')[:2])
 )
 
@@ -70,7 +71,6 @@ extensions = [
     'sphinx.ext.coverage',  # for invoking with `-b coverage`
     'sphinx.ext.doctest',  # for invoking with `-b doctest`
     'sphinx.ext.intersphinx',
-
     # Third-party extensions:
     'myst_parser',  # extended markdown; https://pypi.org/project/myst-parser/
     'sphinx_autodoc_typehints',  # gets function param types from annotations
@@ -78,7 +78,6 @@ extensions = [
     'sphinx_tabs.tabs',
     'sphinxawesome.codelinter',  # checks code blocks with linters
     'sphinxcontrib.apidoc',
-
     # In-tree extensions:
     'spelling_stub_ext',  # auto-loads `sphinxcontrib.spelling` if installed
 ]

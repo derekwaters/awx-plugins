@@ -35,7 +35,7 @@ def get_runtime_python_tag() -> str:
 
     python_minor_ver_tag = ''.join(map(str, python_minor_ver))
 
-    return f'{python_tag_prefix !s}{python_minor_ver_tag !s}'
+    return f'{python_tag_prefix!s}{python_minor_ver_tag!s}'
 
 
 def get_constraint_file_path(  # noqa: WPS210 -- no way to drop vars
@@ -84,7 +84,7 @@ def make_pip_cmd(
     else:
         print(  # noqa: WPS421
             'WARNING: The expected pinned constraints file for the current '
-            f'env does not exist (should be "{constraint_file_path !s}").',
+            f'env does not exist (should be "{constraint_file_path!s}").',
         )
     return pip_cmd
 
@@ -95,5 +95,5 @@ def run_cmd(cmd: list[str] | tuple[str, ...]) -> None:
     :param cmd: The command to invoke.
     """
     escaped_cmd = shlex.join(cmd)
-    print(f'Invoking the following command: {escaped_cmd !s}')  # noqa: WPS421
+    print(f'Invoking the following command: {escaped_cmd!s}')  # noqa: WPS421
     subprocess.check_call(cmd)  # noqa: S603

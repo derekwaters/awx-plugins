@@ -435,7 +435,9 @@ def ssh_backend(**kwargs):
         'public_key': kwargs['public_key'],
     }
     if kwargs.get('valid_principals'):
-        request_kwargs['json']['valid_principals'] = kwargs['valid_principals']  # type: ignore[index]  # FIXME
+        request_kwargs['json'][  # type: ignore[index]  # FIXME
+            'valid_principals'
+        ] = kwargs['valid_principals']
 
     sess = requests.Session()
     sess.mount(url, requests.adapters.HTTPAdapter(max_retries=5))

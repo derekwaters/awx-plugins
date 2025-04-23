@@ -123,7 +123,7 @@ def get_ID(**kwargs):
     # FIXME: sanitize input
     query = f'Select ID from VaultAccount where {name}'  # noqa: S608
     post_headers = {
-        'Authorization': 'Bearer ' + kwargs['access_token'],
+        'Authorization': f'Bearer {kwargs["access_token"]}',
         'X-CENTRIFY-NATIVE-CLIENT': 'true',
     }
     response = requests.post(

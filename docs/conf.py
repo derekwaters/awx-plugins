@@ -7,6 +7,11 @@ from importlib.metadata import version as _retrieve_metadata_version_for
 from pathlib import Path
 from tomllib import loads as _parse_toml
 
+from docutils.nodes import literal, reference
+from sphinx.addnodes import pending_xref
+from sphinx.application import Sphinx
+from sphinx.environment import BuildEnvironment
+
 
 # -- Path setup --------------------------------------------------------------
 
@@ -226,3 +231,42 @@ nitpick_ignore = [
     ),
     ('py:class', 'EnvVarsType'),
 ]
+
+
+def _replace_missing_tokencredential_reference(
+    app: Sphinx,
+    env: BuildEnvironment,
+    node: pending_xref,
+    contnode: literal,
+) -> reference | None:
+    if (node.get('refdomain'), node.get('reftype')) != ('py', 'class'):
+        return None
+
+    ref_target = node.get('reftarget', '')
+    if ref_target != 'azure.core.credentials.TokenCredential':
+        return None
+
+    return reference(
+        ref_target,
+        ref_target,
+        internal=False,
+        refuri='https://github.com/Azure/azure-sdk-for-python/blob/main/sdk/core/azure-core/azure/core/credentials.py',
+    )
+
+
+def setup(app: Sphinx) -> dict[str, bool | str]:
+    """Register project-local Sphinx extension-API customizations.
+
+    :param app: Initialized Sphinx app instance.
+    :returns: Extension metadata.
+    """
+    app.connect(
+        'missing-reference',
+        _replace_missing_tokencredential_reference,
+    )
+
+    return {
+        'parallel_read_safe': True,
+        'parallel_write_safe': True,
+        'version': release,
+    }

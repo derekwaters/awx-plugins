@@ -1,13 +1,35 @@
-# FIXME: the following violations must be addressed gradually and unignored
-# mypy: disable-error-code="import-untyped, no-untyped-def"
+"""Microsoft Azure Key Vault Lookup Plugin.
+
+This module defines a credential lookup plugin to authenticate and retrieve
+secrets from an Azure Key Vault. If the Client ID, Tenant ID, and Client
+Secret are provided it will create a credential with those. If one is missing,
+it will attempt to use the Managed Identity of an Azure VM to create a
+credential.
+
+Functions:
+
+- :func:`azure_keyvault_backend`: Creates a credential either with the fields
+  provided or via the VM environment, and retrieves the secret from the Key
+  Vault.
+- ``azure_keyvault_plugin``: Defines the credential plugin interface.
+"""
 
 from awx_plugins.interfaces._temporary_private_django_api import (  # noqa: WPS436
     gettext_noop as _,
 )
 
-from azure.identity import ClientSecretCredential
+from azure.core.credentials import TokenCredential
+from azure.identity import (
+    ClientSecretCredential,
+    CredentialUnavailableError,
+    ManagedIdentityCredential,
+)
 from azure.keyvault.secrets import SecretClient
-from msrestazure import azure_cloud
+
+# NOTE: `msrestazure` is deprecated and does not provide usable typing.
+# NOTE: This suppression should be replaced by in-tree type stubs.
+# NOTE: Alternatively, the dependency can be replaced.
+from msrestazure import azure_cloud  # type: ignore[import-untyped]
 
 from .plugin import CredentialPlugin
 
@@ -72,25 +94,69 @@ azure_keyvault_inputs = {
     ],
     'required': [
         'url',
-        'client',
-        'secret',
-        'tenant',
         'secret_field',
     ],
 }
 
 
-def azure_keyvault_backend(**kwargs):
-    csc = ClientSecretCredential(
-        tenant_id=kwargs['tenant'],
-        client_id=kwargs['client'],
-        client_secret=kwargs['secret'],
-    )
-    kv = SecretClient(credential=csc, vault_url=kwargs['url'])
-    return kv.get_secret(
-        name=kwargs['secret_field'],
-        version=kwargs.get('secret_version', ''),
-    ).value
+def _initialize_credential(
+    tenant: str = '',
+    client: str = '',
+    secret: str = '',
+) -> TokenCredential:
+    explicit_credentials_provided = all((tenant, client, secret))
+
+    if explicit_credentials_provided:
+        return ClientSecretCredential(
+            tenant_id=tenant,
+            client_id=client,
+            client_secret=secret,
+        )
+
+    return ManagedIdentityCredential()
+
+
+# WPS211 "too many args" is controlled externally
+# pylint: disable-next=too-many-arguments,too-many-positional-arguments
+def azure_keyvault_backend(  # noqa: WPS211
+    *,
+    url: str,
+    client: str,
+    secret: str,
+    tenant: str,
+    secret_field: str,
+    secret_version: str,
+) -> str | None:
+    """Get a credential and retrieve a secret from an Azure Key Vault.
+
+    An empty string for an optional parameter counts as not provided.
+
+    :param url: An Azure Key Vault URI.
+    :param client: The Client ID  (optional).
+    :param secret: The Client Secret  (optional).
+    :param tenant: The Tenant ID  (optional).
+    :param secret_field: The name of the secret to retrieve from the
+        vault.
+    :param secret_version: The version of the secret to retrieve
+        (optional).
+    :returns: The secret from the Key Vault.
+    :raises RuntimeError: If the software is not being run on an Azure
+        VM.
+    """
+    chosen_credential = _initialize_credential(tenant, client, secret)
+    keyvault = SecretClient(credential=chosen_credential, vault_url=url)
+    try:
+        keyvault_secret = keyvault.get_secret(
+            name=secret_field,
+            version=secret_version,
+        )
+    except CredentialUnavailableError as secret_lookup_err:
+        raise RuntimeError(
+            'You are not operating on an Azure VM, so the Managed Identity '
+            'feature is unavailable. Please provide the full Client ID, '
+            'Client Secret, and Tenant ID or run the software on an Azure VM.',
+        ) from secret_lookup_err
+    return keyvault_secret.value
 
 
 azure_keyvault_plugin = CredentialPlugin(

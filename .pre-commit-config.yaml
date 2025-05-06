@@ -305,5 +305,6 @@ repos:
     - python-dsv-sdk  # needed by credentials.dsv, credentials.thycotic_dsv
     - PyYAML  # needed by credentials.injectors, inventory.plugins
     - Sphinx  # needed by the Sphinx extension stub
+    - tox  # needed by `toxfile.py`
 
 ...

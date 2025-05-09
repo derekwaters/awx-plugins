@@ -121,11 +121,11 @@ def _initialize_credential(
 def azure_keyvault_backend(  # noqa: WPS211
     *,
     url: str,
-    client: str,
-    secret: str,
-    tenant: str,
+    client: str = '',
+    secret: str = '',
+    tenant: str = '',
     secret_field: str,
-    secret_version: str,
+    secret_version: str = '',
 ) -> str | None:
     """Get a credential and retrieve a secret from an Azure Key Vault.
 

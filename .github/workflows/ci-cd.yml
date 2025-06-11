@@ -122,7 +122,7 @@ jobs:
 
     runs-on: ubuntu-latest
 
-    timeout-minutes: 2  # network is slow sometimes when fetching from Git
+    timeout-minutes: 3  # network is slow sometimes when fetching from Git
 
     defaults:
       run:
@@ -350,7 +350,7 @@ jobs:
       # python-version: 3.13
       python-version: 3.11  # FIXME??
       runner-vm-os: ubuntu-latest
-      timeout-minutes: 2
+      timeout-minutes: 3  # network is slow sometimes when fetching from Git
       toxenv: build-dists
       tox-tool-deps: tox
       xfail: false

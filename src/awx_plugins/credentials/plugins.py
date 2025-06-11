@@ -754,7 +754,7 @@ controller = ManagedCredentialType(
                 'secret': False,
                 'default': 'galaxy',
                 'help_text': gettext_noop(
-                    'Specify the timeout Ansible should use in requests to'
+                    'Specify the timeout Ansible should use in requests to '
                     'the host. Defaults to 10s',
                 ),
             },

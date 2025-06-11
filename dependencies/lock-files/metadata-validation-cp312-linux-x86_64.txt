@@ -10,7 +10,7 @@ cffi==1.17.1
     # via cryptography
 charset-normalizer==3.4.2
     # via requests
-cryptography==44.0.3
+cryptography==45.0.3
     # via secretstorage
 docutils==0.21.2
     # via readme-renderer
@@ -75,5 +75,5 @@ urllib3==2.4.0
     #   twine
 
 # The following packages are considered to be unsafe in a requirements file:
-setuptools==80.3.1
+setuptools==80.9.0
     # via setuptools-scm

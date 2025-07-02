@@ -40,10 +40,6 @@ ignore = [
   "DOC201",  # Ruff doesn't understand sphinx-native param lists
   "DOC501",  # docstring-missing-exception  # Ruff doesn't understand sphinx-native param lists
 
-  "FIX002",  # line-contains-todo  # FIXME / noqa
-
-  "FLY002",  # static-join-to-f-string  # FIXME
-
   "EM101",  # raw-string-in-exception  # FIXME
   "EM102",  # f-string-in-exception  # FIXME
 
@@ -51,6 +47,9 @@ ignore = [
   "ERA001",  # False-positives in commented-out code
 
   "FIX001",  # line-contains-fixme  # FIXME
+  "FIX002",  # line-contains-todo  # FIXME / noqa
+
+  "FLY002",  # static-join-to-f-string  # FIXME
 
   "PLC0414",  # useless-import-alias  # needed for MyPy explicit re-exports
   "PLC0415",  # import-outside-top-level  # FIXME

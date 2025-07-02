@@ -77,8 +77,6 @@ ignore = [
 
   "SIM117",  # multiple-with-statements  # FIXME
 
-  "T201",  # print  # FIXME
-
   "TD001",   # invalid-todo-tag  # FIXME
   "TD002",   # missing-todo-author  # FIXME
   "TD003",   # missing-todo-link  # FIXME

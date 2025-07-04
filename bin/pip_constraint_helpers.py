@@ -82,7 +82,7 @@ def make_pip_cmd(
     if constraint_file_path.is_file():
         pip_cmd += ['--constraint', str(constraint_file_path)]
     else:
-        print(  # noqa: WPS421
+        print(  # noqa: T201, WPS421
             'WARNING: The expected pinned constraints file for the current '
             f'env does not exist (should be "{constraint_file_path!s}").',
         )
@@ -95,5 +95,5 @@ def run_cmd(cmd: list[str] | tuple[str, ...]) -> None:
     :param cmd: The command to invoke.
     """
     escaped_cmd = shlex.join(cmd)
-    print(f'Invoking the following command: {escaped_cmd!s}')  # noqa: WPS421
+    print(f'Invoking the following command: {escaped_cmd!s}')  # noqa: T201, WPS421
     subprocess.check_call(cmd)  # noqa: S603

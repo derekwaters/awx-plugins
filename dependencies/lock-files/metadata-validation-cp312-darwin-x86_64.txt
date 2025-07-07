@@ -4,7 +4,7 @@
 #
 #    tox r -e pip-compile-tox-env-lock -- metadata-validation --upgrade
 #
-certifi==2025.4.26
+certifi==2025.6.15
     # via requests
 charset-normalizer==3.4.2
     # via requests
@@ -18,7 +18,7 @@ jaraco-classes==3.4.0
     # via keyring
 jaraco-context==6.0.1
     # via keyring
-jaraco-functools==4.1.0
+jaraco-functools==4.2.1
     # via keyring
 keyring==25.6.0
     # via twine
@@ -36,13 +36,13 @@ packaging==25.0
     # via
     #   setuptools-scm
     #   twine
-pygments==2.19.1
+pygments==2.19.2
     # via
     #   readme-renderer
     #   rich
 readme-renderer==44.0
     # via twine
-requests==2.32.3
+requests==2.32.4
     # via
     #   id
     #   requests-toolbelt
@@ -57,7 +57,7 @@ setuptools-scm==8.3.1
     # via -r dependencies/direct/metadata-validation.in
 twine==6.1.0
     # via -r dependencies/direct/metadata-validation.in
-urllib3==2.4.0
+urllib3==2.5.0
     # via
     #   requests
     #   twine

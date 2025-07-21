@@ -4,6 +4,8 @@
 #
 #    tox r -e pip-compile-tox-env-lock -- spellcheck-docs pyproject.toml --upgrade
 #
+accessible-pygments==0.0.5
+    # via furo
 adal==1.2.7
     # via msrestazure
 alabaster==1.0.0
@@ -17,7 +19,7 @@ azure-core==1.35.0
     #   azure-keyvault-keys
     #   azure-keyvault-secrets
     #   msrest
-azure-identity==1.23.0
+azure-identity==1.23.1
     # via awx-plugins-core (pyproject.toml)
 azure-keyvault==4.2.0
     # via awx-plugins-core (pyproject.toml)
@@ -31,13 +33,13 @@ babel==2.17.0
     # via sphinx
 beautifulsoup4==4.13.4
     # via furo
-boto3==1.39.3
+boto3==1.39.9
     # via awx-plugins-core (pyproject.toml)
-botocore==1.39.3
+botocore==1.39.9
     # via
     #   boto3
     #   s3transfer
-certifi==2025.6.15
+certifi==2025.7.14
     # via
     #   msrest
     #   requests
@@ -61,7 +63,7 @@ docutils==0.21.2
     #   myst-parser
     #   sphinx
     #   sphinx-tabs
-furo==2024.8.6
+furo==2025.7.19
     # via -r /home/runner/work/awx-plugins/awx-plugins/dependencies/direct/build-docs.in
 idna==3.10
     # via requests
@@ -121,6 +123,7 @@ pygithub==2.6.1
     # via awx-plugins-core (pyproject.toml)
 pygments==2.19.2
     # via
+    #   accessible-pygments
     #   furo
     #   sphinx
     #   sphinx-tabs
@@ -159,7 +162,7 @@ requests==2.32.4
     #   sphinxcontrib-spelling
 requests-oauthlib==2.0.0
     # via msrest
-s3transfer==0.13.0
+s3transfer==0.13.1
     # via boto3
 six==1.17.0
     # via

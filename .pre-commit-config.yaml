@@ -38,7 +38,7 @@ repos:
   - id: no_optional
 
 - repo: https://github.com/astral-sh/ruff-pre-commit.git
-  rev: v0.11.6
+  rev: v0.12.2
   hooks:
   - id: ruff
     args:
@@ -46,18 +46,18 @@ repos:
     - --fix  # NOTE: When `--fix` is used, linting should be before ruff-format
 
 - repo: https://github.com/astral-sh/ruff-pre-commit.git
-  rev: v0.11.6
+  rev: v0.12.2
   hooks:
   - id: ruff-format
     alias: ruff-format-first-pass
 
 - repo: https://github.com/asottile/add-trailing-comma.git
-  rev: v3.1.0
+  rev: v3.2.0
   hooks:
   - id: add-trailing-comma
 
 - repo: https://github.com/astral-sh/ruff-pre-commit.git
-  rev: v0.11.6
+  rev: v0.12.2
   hooks:
   - id: ruff-format
     alias: ruff-format-second-pass
@@ -68,7 +68,7 @@ repos:
   - id: remove-tabs
 
 - repo: https://github.com/python-jsonschema/check-jsonschema.git
-  rev: 0.30.0
+  rev: 0.33.2
   hooks:
   - id: check-github-workflows
     files: ^\.github/workflows/[^/]+$
@@ -138,14 +138,14 @@ repos:
       ^README\.rst$
 
 - repo: https://github.com/codespell-project/codespell.git
-  rev: v2.3.0
+  rev: v2.4.1
   hooks:
   - id: codespell
     exclude: >-
       ^\.github/\.json-schemas/.*\.json$
 
 - repo: https://github.com/adrienverge/yamllint.git
-  rev: v1.35.1
+  rev: v1.37.1
   hooks:
   - id: yamllint
     types:
@@ -165,7 +165,7 @@ repos:
   - id: shellcheck
 
 - repo: https://github.com/PyCQA/flake8.git
-  rev: 7.1.1
+  rev: 7.3.0
   hooks:
   - id: flake8
     additional_dependencies:
@@ -181,7 +181,7 @@ repos:
     language_version: python3
 
 - repo: https://github.com/pre-commit/mirrors-mypy.git
-  rev: v1.14.1
+  rev: v1.16.1
   hooks:
   - id: mypy
     alias: mypy-py313
@@ -284,7 +284,7 @@ repos:
     pass_filenames: false
 
 - repo: https://github.com/PyCQA/pylint.git
-  rev: v3.3.3
+  rev: v3.3.7
   hooks:
   - id: pylint
     additional_dependencies:

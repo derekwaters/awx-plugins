@@ -19,7 +19,7 @@ azure-core==1.35.0
     #   azure-keyvault-keys
     #   azure-keyvault-secrets
     #   msrest
-azure-identity==1.23.0
+azure-identity==1.23.1
     # via awx-plugins-core (pyproject.toml)
 azure-keyvault==4.2.0
     # via awx-plugins-core (pyproject.toml)
@@ -29,13 +29,13 @@ azure-keyvault-keys==4.11.0
     # via azure-keyvault
 azure-keyvault-secrets==4.10.0
     # via azure-keyvault
-boto3==1.39.3
+boto3==1.39.9
     # via awx-plugins-core (pyproject.toml)
-botocore==1.39.3
+botocore==1.39.9
     # via
     #   boto3
     #   s3transfer
-certifi==2025.6.15
+certifi==2025.7.14
     # via
     #   msrest
     #   requests
@@ -67,7 +67,7 @@ deprecated==1.2.18
     # via pygithub
 execnet==2.1.1
     # via pytest-xdist
-hypothesis==6.135.26
+hypothesis==6.136.1
     # via -r dependencies/direct/py.in
 idna==3.10
     # via requests
@@ -157,7 +157,7 @@ requests==2.32.4
     #   requests-oauthlib
 requests-oauthlib==2.0.0
     # via msrest
-s3transfer==0.13.0
+s3transfer==0.13.1
     # via boto3
 six==1.17.0
     # via

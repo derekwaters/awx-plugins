@@ -34,7 +34,7 @@ jeepney==0.9.0
     #   secretstorage
 keyring==25.6.0
     # via twine
-markdown-it-py==3.0.0
+markdown-it-py==4.0.0
     # via rich
 mdurl==0.1.2
     # via markdown-it-py
@@ -69,7 +69,7 @@ rich==14.1.0
     # via twine
 secretstorage==3.3.3
     # via keyring
-setuptools-scm==8.3.1
+setuptools-scm==9.2.0
     # via -r dependencies/direct/metadata-validation.in
 twine==6.1.0
     # via -r dependencies/direct/metadata-validation.in

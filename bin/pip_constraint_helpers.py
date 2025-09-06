@@ -24,7 +24,7 @@ def get_runtime_python_tag() -> str:
 
     :returns: Python tag.
     """
-    python_minor_ver = sys.version_info[:2]
+    python_minor_ver: tuple[int, int] = sys.version_info[:2]
 
     try:
         sys_impl = sys.implementation.name
@@ -65,28 +65,6 @@ def get_constraint_file_path(  # noqa: WPS210 -- no way to drop vars
         f'{toxenv}-{python_tag}-{sys_platform}-{platform_machine}'
     )
     return (pathlib.Path(req_dir) / constraint_name).with_suffix('.txt')
-
-
-def make_pip_cmd(
-    pip_args: list[str],
-    constraint_file_path: pathlib.Path,
-) -> list[str]:
-    """Inject a lockfile constraint into the pip command if present.
-
-    :param pip_args: pip arguments.
-    :param constraint_file_path: Path to a ``constraints.txt``-compatible file.
-
-    :returns: pip command.
-    """
-    pip_cmd = [sys.executable, '-Im', 'pip'] + pip_args
-    if constraint_file_path.is_file():
-        pip_cmd += ['--constraint', str(constraint_file_path)]
-    else:
-        print(  # noqa: T201, WPS421
-            'WARNING: The expected pinned constraints file for the current '
-            f'env does not exist (should be "{constraint_file_path!s}").',
-        )
-    return pip_cmd
 
 
 def run_cmd(cmd: list[str] | tuple[str, ...]) -> None:

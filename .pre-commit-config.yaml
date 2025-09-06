@@ -201,6 +201,7 @@ repos:
     - pytest-subtests
     - python-dsv-sdk >= 1.0.4  # needed by credentials.thycotic_dsv
     - python-tss-sdk >= 1.2.1  # needed by credentials.thycotic_tss
+    - tox  # needed by `toxfile.py`
     - types-PyYAML  # needed by credentials.injectors, inventory.plugins
     # The following dependency is used in `credentials.aim`,
     # `credentials.centrify_vault`, `credentials.conjur`
@@ -234,6 +235,7 @@ repos:
     - pytest-subtests
     - python-dsv-sdk >= 1.0.4  # needed by credentials.thycotic_dsv
     - python-tss-sdk >= 1.2.1  # needed by credentials.thycotic_tss
+    - tox  # needed by `toxfile.py`
     - types-PyYAML  # needed by credentials.injectors, inventory.plugins
     # The following dependency is used in `credentials.aim`,
     # `credentials.centrify_vault`, `credentials.conjur`
@@ -267,6 +269,7 @@ repos:
     - pytest-subtests
     - python-dsv-sdk >= 1.0.4  # needed by credentials.thycotic_dsv
     - python-tss-sdk >= 1.2.1  # needed by credentials.thycotic_tss
+    - tox  # needed by `toxfile.py`
     - types-PyYAML  # needed by credentials.injectors, inventory.plugins
     # The following dependency is used in `credentials.aim`,
     # `credentials.centrify_vault`, `credentials.conjur`

@@ -98,8 +98,11 @@ per-file-ignores =
   # these will need to be added to that line as well.
 
   # FIXME: toxfile is currently rather complicated, allowing these temporarily:
+  # ANN101 Missing type annotation for self in method
+  # WPS201 Found module with too many imports: 21 > 12
   # WPS202 Found too many module members: 8 > 7
-  toxfile.py: WPS202
+  # WPS402 Found `noqa` comments overuse: 26
+  toxfile.py: ANN101, WPS201, WPS202, WPS402
 
   # There are multiple `assert`s (S101)
   # and subprocesses (import – S404; call – S603) in tests;

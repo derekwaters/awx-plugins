@@ -103,7 +103,7 @@ follow_imports = 'normal'
 
 local_partial_types = true
 
-mypy_path = "${MYPY_CONFIG_FILE_DIR}/src:${MYPY_CONFIG_FILE_DIR}/_type_stubs"
+mypy_path = "${MYPY_CONFIG_FILE_DIR}/bin:${MYPY_CONFIG_FILE_DIR}/src:${MYPY_CONFIG_FILE_DIR}/_type_stubs"
 
 no_implicit_reexport = true
 

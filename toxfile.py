@@ -4,16 +4,21 @@ import platform
 import ssl
 import typing as t  # noqa: WPS111
 from base64 import b64encode
+from dataclasses import dataclass
 from functools import cached_property
 from hashlib import sha256
 from logging import getLogger
 from os import environ, getenv
 from pathlib import Path
+from shlex import join as _shlex_join
 from sys import path as _sys_path
 
+from tox.config.loader.memory import MemoryLoader
+from tox.config.sets import ConfigSet
 from tox.config.types import Command
 from tox.execute.request import StdinSource
 from tox.plugin import impl
+from tox.session.state import State
 from tox.tox_env.api import ToxEnv
 from tox.tox_env.python.pip.pip_install import Pip as PipInstaller
 from tox.tox_env.python.virtual_env.package.cmd_builder import (
@@ -342,6 +347,204 @@ def tox_register_tox_env(register: ToxEnvRegister) -> None:
     )
     # pylint: disable-next=protected-access
     register._default_run_env = run_env_id  # noqa: SLF001, WPS437
+
+
+@impl
+def tox_extend_envs() -> tuple[str, ...]:
+    """Declare plugin-provided pip-compile in-memory tox envs."""
+    pip_compile_envs = tuple(env_cls.name for env_cls in pip_compile_env_clss)
+    logger.debug(
+        'tox-lock:tox_extend_envs> '  # noqa: WPS323
+        'Adding ephemeral tox envs: %s',
+        ', '.join(pip_compile_envs),
+    )
+    return pip_compile_envs
+
+
+# pylint: disable-next=fixme
+@dataclass(frozen=True)  # TODO: re-add kw_only=True, slots=True w/ py3.10+
+class PipCompileToxEnvBase:
+    """A base class for dynamically injected pip-compile envs."""
+
+    _pos_args: tuple[str, ...] | None
+    name: t.ClassVar[str]
+    _description: t.ClassVar[str]
+    deps: t.ClassVar[list[str]] = ['pip-tools']
+    commands_pre: t.ClassVar[list[str]] = []
+    commands_post: t.ClassVar[list[str]] = []
+    package: t.ClassVar[str] = 'skip'
+
+    @property
+    def commands(self) -> list[str]:
+        """Return a rendered ``pip-compile`` command."""
+        pip_compile_cmd = (
+            'python',  # instead of `{envpython}`
+            # '-bb',
+            '-b',  # BytesWarning: Comparison between bytes and string @ Click
+            '-E',
+            '-s',
+            '-I',
+            '-Werror',
+            '-mpiptools',
+            'compile',
+            *self._first_args,
+            *self._trailing_args,
+        )
+
+        return [_shlex_join(pip_compile_cmd)]
+
+    @property
+    def description(self) -> str:
+        """Return a prefixed tox env description."""
+        return f'[tox-lock] {self._description}'
+
+    @property
+    def set_env(self) -> dict[str, str]:
+        """Return a environment variables for tox env."""
+        cmd_posargs_trailer = ''
+        if self._pos_args is not None:
+            quoted_pos_args = _shlex_join(self._pos_args)
+            cmd_posargs_trailer = f' -- {quoted_pos_args}'.rstrip()
+
+        return {
+            'CUSTOM_COMPILE_COMMAND': 'tox run -qq -e '
+            f'{self.name}{cmd_posargs_trailer}',
+        }
+
+    def to_memory_loader(self) -> MemoryLoader:
+        """Construct a memory loader populated with current settings."""
+        return MemoryLoader(
+            base=[],  # disable inheritance for plugin-provided in-memory envs
+            commands_pre=self.commands_pre,
+            commands=self.commands,
+            commands_post=self.commands_post,
+            deps=self.deps,
+            description=self.description,
+            package=self.package,
+            set_env=self.set_env,
+        )
+
+    @property
+    def _first_args(self) -> tuple[str, ...]:
+        return ()
+
+    @property
+    def _trailing_args(self) -> tuple[str, ...]:
+        return ('--help',) if self._pos_args is None else self._pos_args
+
+
+# pylint: disable-next=fixme
+@dataclass(frozen=True)  # TODO: re-add kw_only=True, slots=True w/ py3.10+
+class PipCompileToxEnv(PipCompileToxEnvBase):
+    """An injected env for pip-compile invocations."""
+
+    name: t.ClassVar[str] = 'pip-compile'
+    # Run `pip-compile {posargs:}` under {envpython}
+    _description: t.ClassVar[str] = 'Invoke pip-compile of pip-tools'
+
+
+# pylint: disable-next=fixme
+@dataclass(frozen=True)  # TODO: re-add kw_only=True, slots=True w/ py3.10+
+class PipCompileBuildLockToxEnv(PipCompileToxEnvBase):
+    """An injected env for making build env constraint file."""
+
+    name: t.ClassVar[str] = 'pip-compile-build-lock'
+    # Produce a PEP 517/660 build deps lock using {envpython}
+    _description: t.ClassVar[str] = 'Produce a PEP 517/660 build deps lock'
+
+    @property
+    def _first_args(self) -> tuple[str, ...]:
+        return (
+            '--only-build-deps',
+            '--all-build-deps',
+            '--output-file=dependencies/lock-files/dist-build-constraints.txt',
+        )
+
+    @property
+    def _trailing_args(self) -> tuple[str, ...]:
+        return () if self._pos_args is None else self._pos_args
+
+
+# pylint: disable-next=fixme
+@dataclass(frozen=True)  # TODO: re-add kw_only=True, slots=True w/ py3.10+
+class PipCompileToxEnvLockToxEnv(PipCompileToxEnvBase):
+    """An injected env for making pre-env constraint files."""
+
+    name: t.ClassVar[str] = 'pip-compile-tox-env-lock'
+    # Produce {posargs} lock file using {envpython}
+    _description: t.ClassVar[str] = (
+        'Produce a lock file for the passed tox env using current python'
+    )
+
+    @property
+    def _first_args(self) -> tuple[str, ...]:
+        if not self._pos_args:
+            return ()
+
+        toxenv = self._pos_args[0]
+
+        lock_file_name = get_constraint_file_path(
+            req_dir='dependencies/lock-files/',
+            toxenv=toxenv,
+            python_tag=get_runtime_python_tag(),
+        )
+
+        return (
+            f'--output-file={lock_file_name!s}',
+            str(lock_file_name.parents[1] / 'direct' / f'{toxenv}.in')
+            if lock_file_name
+            else '',
+        )
+
+    @property
+    def _trailing_args(self) -> tuple[str, ...]:
+        return ('--help',) if self._pos_args is None else self._pos_args[1:]
+
+
+pip_compile_env_clss = {
+    PipCompileToxEnv,
+    PipCompileBuildLockToxEnv,
+    PipCompileToxEnvLockToxEnv,
+}
+
+
+@impl
+# pylint: disable-next=unused-argument
+def tox_add_core_config(core_conf: ConfigSet, state: State) -> None:
+    """Define pip-compile in-memory tox environment configs."""
+    # NOTE: Command injections are happening in this hook because this allows
+    # NOTE: them to show up in the `tox config` output. In-memory configs do
+    # NOTE: not support substitutions like `{posargs}` or `{envpython}`. We
+    # NOTE: could've stored the posargs value and used `tox_env.execute()` in
+    # NOTE: the `tox_before_run_commands()` hook that has access to the
+    # NOTE: virtualenv's interpreter path via either `tox_env.env_python()`, or
+    # NOTE: `tox_env.session.interpreter.executable`. This would've allowed us
+    # NOTE: to use the absolute path to the executable and the positional args
+    # NOTE: smuggled across contexts via a module-global variable. However,
+    # NOTE: this would mean that `tox config` would not be able to show that.
+    # NOTE: Instead of `{envpython}` that is unusable here, we rely on the
+    # NOTE: `python` name in hopes that tox's machinery is good enough not to
+    # NOTE: break its path resolution.
+
+    tox_env_definitions = {
+        env_cls.name: env_cls(
+            # instead of `{posargs}` in commands
+            _pos_args=state.conf.pos_args(to_path=None),
+        )
+        for env_cls in pip_compile_env_clss
+    }
+    for env_name, tox_env in tox_env_definitions.items():
+        in_memory_config_loader = tox_env.to_memory_loader()
+
+        logger.debug(
+            'tox-lock:tox_add_core_config> Adding an '  # noqa: WPS323
+            'in-memory config for ephemeral `%s` tox environment...',
+            env_name,
+        )
+
+        state.conf.memory_seed_loaders[env_name].append(
+            in_memory_config_loader,  # src/tox/provision.py:provision()
+        )
 
 
 def tox_append_version_info() -> str:

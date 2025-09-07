@@ -302,5 +302,9 @@ testing = [
   "PT011",
 ]
 
+"toxfile.py" = [
+  "FIX002",  # line-contains-todo  # FIXME / noqa
+]
+
 [lint.pydocstyle]
 convention = "pep257"

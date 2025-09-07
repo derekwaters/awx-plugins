@@ -509,8 +509,10 @@ pip_compile_env_clss = {
 
 
 @impl
-# pylint: disable-next=unused-argument
-def tox_add_core_config(core_conf: ConfigSet, state: State) -> None:
+def tox_add_core_config(
+    core_conf: ConfigSet,  # noqa: ARG001  # pylint: disable=unused-argument
+    state: State,
+) -> None:
     """Define pip-compile in-memory tox environment configs."""
     # NOTE: Command injections are happening in this hook because this allows
     # NOTE: them to show up in the `tox config` output. In-memory configs do

@@ -100,11 +100,11 @@ jobs:
         - tox
         - spellcheck-docs
         lock-file-extra-input:
-        - pyproject.toml
+        - pyproject.toml --all-extras
         - ''
         exclude:
         - lock-file-env: build-dists
-          lock-file-extra-input: pyproject.toml
+          lock-file-extra-input: pyproject.toml --all-extras
         - lock-file-env: build-docs
           lock-file-extra-input: ''
         - lock-file-env: codelinter-docs
@@ -116,19 +116,19 @@ jobs:
         - lock-file-env: linkcheck-docs
           lock-file-extra-input: ''
         - lock-file-env: metadata-validation
-          lock-file-extra-input: pyproject.toml
+          lock-file-extra-input: pyproject.toml --all-extras
         - lock-file-env: pip-compile
-          lock-file-extra-input: pyproject.toml
+          lock-file-extra-input: pyproject.toml --all-extras
         - lock-file-env: pip-compile-build-lock
-          lock-file-extra-input: pyproject.toml
+          lock-file-extra-input: pyproject.toml --all-extras
         - lock-file-env: pip-compile-tox-env-lock
-          lock-file-extra-input: pyproject.toml
+          lock-file-extra-input: pyproject.toml --all-extras
         - lock-file-env: pre-commit
-          lock-file-extra-input: pyproject.toml
+          lock-file-extra-input: pyproject.toml --all-extras
         - lock-file-env: py
           lock-file-extra-input: ''
         - lock-file-env: tox
-          lock-file-extra-input: pyproject.toml
+          lock-file-extra-input: pyproject.toml --all-extras
         - lock-file-env: spellcheck-docs
           lock-file-extra-input: ''
 

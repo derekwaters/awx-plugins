@@ -218,6 +218,15 @@ class vmware(PluginFileInjector):
     collection = 'vmware'
 
 
+class vmware_esxi_supported(PluginFileInjector):
+    plugin_name = 'esxi_hosts'
+    plugin_description = 'VMware ESXi'
+    base_injector = 'managed'
+    namespace = 'vmware'
+    collection = 'vmware'
+    use_fqcn = True
+
+
 class openstack(PluginFileInjector):
     plugin_name = 'openstack'
     plugin_description = 'OpenStack'

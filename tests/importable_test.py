@@ -159,7 +159,7 @@ inventory_plugins = (
         'openshift_virtualization',
         'awx_plugins.inventory.plugins:openshift_virtualization_supported',
     ),
-        EntryPointParam(
+    EntryPointParam(
         'awx_plugins.inventory.supported',
         'vmware_esxi',
         'awx_plugins.inventory.plugins:vmware_esxi_supported',

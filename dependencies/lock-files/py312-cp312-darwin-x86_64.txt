@@ -7,9 +7,7 @@
 adal==1.2.7
     # via msrestazure
 attrs==25.4.0
-    # via
-    #   hypothesis
-    #   pytest-subtests
+    # via pytest-subtests
 awx-plugins-interfaces==0.0.1a5
     # via awx-plugins-core (pyproject.toml)
 azure-core==1.36.0
@@ -29,9 +27,9 @@ azure-keyvault-keys==4.11.0
     # via azure-keyvault
 azure-keyvault-secrets==4.10.0
     # via azure-keyvault
-boto3==1.40.59
+boto3==1.40.66
     # via awx-plugins-core (pyproject.toml)
-botocore==1.40.59
+botocore==1.40.66
     # via
     #   boto3
     #   s3transfer
@@ -65,7 +63,7 @@ cryptography==46.0.3
     #   pyjwt
 execnet==2.1.1
     # via pytest-xdist
-hypothesis==6.142.4
+hypothesis==6.145.1
     # via -r dependencies/direct/py.in
 idna==3.11
     # via requests
@@ -138,7 +136,7 @@ python-dateutil==2.9.0.post0
     #   botocore
 python-dsv-sdk==1.0.4
     # via awx-plugins-core (pyproject.toml)
-python-tss-sdk==2.0.0
+python-tss-sdk==2.0.1
     # via awx-plugins-core (pyproject.toml)
 pyyaml==6.0.3
     # via awx-plugins-core (pyproject.toml)

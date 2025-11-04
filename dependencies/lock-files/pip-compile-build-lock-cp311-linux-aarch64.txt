@@ -21,6 +21,8 @@ wheel==0.45.1
 
 # The following packages are considered to be unsafe in a requirements file:
 pip==25.2
-    # via pip-tools
+    # via
+    #   -c dependencies/direct/pip-compile-constraints.in
+    #   pip-tools
 setuptools==80.9.0
     # via pip-tools

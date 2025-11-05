@@ -184,7 +184,10 @@ class _FakeAppInstallationAuth(AppInstallationAuth):
         pytest.param(str(TEST_APP_ID), id='app-id-str'),
         pytest.param('Iv1.aaaaaaaaaaaaaaaa', id='client-id-iv1-legacy-format'),
         pytest.param('Iv2aaaaaaaaaaaaaaaa', id='client-id-iv2-new-format'),
-        pytest.param('Iv10aaaaaaaaaaaaaaaa', id='client-id-iv10-double-digit-version'),
+        pytest.param(
+            'Iv10aaaaaaaaaaaaaaaa',
+            id='client-id-iv10-double-digit-version',
+        ),
         pytest.param('Iv100.aaaaaaaaaaaaaaaa', id='client-id-iv100-with-dot'),
         pytest.param('Iv23likIfIXeZTb5GCAA', id='client-id-iv23-real-example'),
     ),

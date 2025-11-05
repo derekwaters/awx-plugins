@@ -79,11 +79,11 @@ github_app_inputs: GitHubAppInputs = {
         },
         {
             'id': 'app_or_client_id',
-            'label': _('GitHub App ID'),
+            'label': _('GitHub App ID or Client ID'),
             'type': 'string',
             'help_text': _(
-                'The GitHub App ID created by the GitHub Admin. '
-                'Example App ID: 1121547 '
+                'The GitHub App ID or Client ID created by the GitHub Admin. '
+                'Example App ID: 1121547, Client ID: Iv23likIfIXeZTb5GCAA '
                 'found on https://github.com/settings/apps/ '
                 'required for creating a JWT token for authentication.',
             ),
@@ -130,65 +130,6 @@ class EmptyKwargs(TypedDict):
     """Schema for zero keyword arguments."""
 
 
-GH_CLIENT_ID_TRAILER_LENGTH = 16
-HEXADECIMAL_BASE = 16
-
-
-def _is_intish(app_id_candidate: str | int) -> bool:
-    return isinstance(app_id_candidate, int) or app_id_candidate.isdigit()
-
-
-def _is_client_id(client_id_candidate: str) -> bool:
-    client_id_prefix = 'Iv1.'
-    if not client_id_candidate.startswith(client_id_prefix):
-        return False
-
-    client_id_trailer = client_id_candidate.removeprefix(client_id_prefix)
-
-    if len(client_id_trailer) != GH_CLIENT_ID_TRAILER_LENGTH:
-        return False
-
-    try:
-        int(client_id_trailer, base=HEXADECIMAL_BASE)
-    except ValueError:
-        return False
-
-    return True
-
-
-def _is_app_or_client_id(app_or_client_id_candidate: str | int) -> bool:
-    if _is_intish(app_or_client_id_candidate):
-        return True
-
-    assert not isinstance(app_or_client_id_candidate, int)  # type narrowing
-    return _is_client_id(app_or_client_id_candidate)
-
-
-def _assert_ids_look_acceptable(
-    app_or_client_id: int | str,
-    install_id: int | str,
-) -> None:
-    if not _is_app_or_client_id(app_or_client_id):
-        raise ValueError(
-            'Expected GitHub App or Client ID to be an integer or a string '
-            f'starting with `Iv1.` followed by 16 hexadecimal digits, '
-            f'but got {app_or_client_id!r}',
-        )
-
-    if isinstance(app_or_client_id, str) and _is_client_id(app_or_client_id):
-        raise ValueError(
-            'Expected GitHub App ID must be an integer or a string '
-            f'with an all-digit value, but got {app_or_client_id!r}. '
-            'Client IDs are currently unsupported.',
-        )
-
-    if not _is_intish(install_id):
-        raise ValueError(
-            'Expected GitHub App Installation ID to be an integer'
-            f' but got {install_id!r}',
-        )
-
-
 def extract_github_app_install_token(  # noqa: WPS210
     *,
     github_api_url: str,
@@ -200,17 +141,15 @@ def extract_github_app_install_token(  # noqa: WPS210
     """Generate a GH App Installation access token.
 
     :param github_api_url: The GitHub instance API endpoint URL.
-    :param app_or_client_id: The GitHub App ID.
+    :param app_or_client_id: The GitHub App ID or Client ID.
     :param private_rsa_key: The private key associated with the GitHub
         App.
     :param install_id: The GitHub App Installation ID.
     :param _discarded_kwargs: Aren't expected to be passed.
     :returns: A GitHub access token for a GitHub App Installation.
-    :raises ValueError: If any required parameters are invalid.
-    :raises RuntimeError: If any required parameters are invalid.
+    :raises ValueError: If authentication fails or parameters are invalid.
+    :raises RuntimeError: If an unexpected error occurs during token generation.
     """
-    _assert_ids_look_acceptable(app_or_client_id, install_id)
-
     auth = Auth.AppAuth(
         app_id=str(app_or_client_id),
         private_key=private_rsa_key,

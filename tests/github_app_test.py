@@ -31,6 +31,7 @@ from awx_plugins.credentials import github_app as gh_app_plugin_mod
 
 RSA_PUBLIC_EXPONENT = 65_537  # noqa: WPS303
 MINIMUM_RSA_KEY_SIZE = 1024  # the lowest value chosen for performance in tests
+TEST_APP_ID = 123
 
 
 @pytest.fixture(scope='module')
@@ -179,13 +180,13 @@ class _FakeAppInstallationAuth(AppInstallationAuth):
 @pytest.mark.parametrize(
     'application_or_client_id',
     (
-        123,
-        '123',
-        'Iv1.aaaaaaaaaaaaaaaa',
-        'Iv2aaaaaaaaaaaaaaaa',
-        'Iv10aaaaaaaaaaaaaaaa',
-        'Iv100.aaaaaaaaaaaaaaaa',
-        'Iv23likIfIXeZTb5GCAA',
+        pytest.param(TEST_APP_ID, id='app-id-int'),
+        pytest.param(str(TEST_APP_ID), id='app-id-str'),
+        pytest.param('Iv1.aaaaaaaaaaaaaaaa', id='client-id-iv1-legacy-format'),
+        pytest.param('Iv2aaaaaaaaaaaaaaaa', id='client-id-iv2-new-format'),
+        pytest.param('Iv10aaaaaaaaaaaaaaaa', id='client-id-iv10-double-digit-version'),
+        pytest.param('Iv100.aaaaaaaaaaaaaaaa', id='client-id-iv100-with-dot'),
+        pytest.param('Iv23likIfIXeZTb5GCAA', id='client-id-iv23-real-example'),
     ),
 )
 @pytest.mark.parametrize(

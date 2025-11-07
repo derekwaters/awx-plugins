@@ -20,6 +20,7 @@ ignore = [
   # Legitimate cases, no need to "fix" these violations:
   # E501: "line too long", its function is replaced by `flake8-length`
   "E501",
+  "TID252",  # `relative-imports`: it's preferred to use relative over absolute
   # W505: "doc line too long", its function is replaced by `flake8-length`
   "W505",
 

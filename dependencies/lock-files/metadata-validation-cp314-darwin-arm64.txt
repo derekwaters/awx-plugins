@@ -8,7 +8,7 @@ certifi==2025.10.5
     # via requests
 charset-normalizer==3.4.4
     # via requests
-docutils==0.22.2
+docutils==0.22.3
     # via readme-renderer
 id==1.5.0
     # via twine

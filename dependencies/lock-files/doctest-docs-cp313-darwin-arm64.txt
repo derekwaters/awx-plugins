@@ -33,9 +33,9 @@ babel==2.17.0
     # via sphinx
 beautifulsoup4==4.14.2
     # via furo
-boto3==1.40.66
+boto3==1.40.69
     # via awx-plugins-core (pyproject.toml)
-botocore==1.40.66
+botocore==1.40.69
     # via
     #   boto3
     #   s3transfer

@@ -411,4 +411,4 @@ You may configure AWX to ask the user for the password at launch time by selecti
 
     Credentials which are used in *Scheduled Jobs* must not be configured as :guilabel:`Prompt on launch`.
 
-For more information about Ansible Vault, refer to: http://docs.ansible.com/ansible/playbooks_vault.html
+For more information about Ansible Vault, refer to: https://docs.ansible.com/projects/ansible/latest/vault_guide/

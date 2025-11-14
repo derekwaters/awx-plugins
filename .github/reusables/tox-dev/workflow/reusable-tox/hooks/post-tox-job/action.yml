@@ -38,7 +38,9 @@ runs:
       fail-on-error: ${{ runner.debug == 1 && false || true }}
       files: >-
         ${{
-          fromJSON(inputs.current-job-steps).tox-run.outputs.cov-report-files
+          fromJSON(
+            inputs.current-job-steps
+          ).tox-run.outputs.coveralls-report-files
         }}
       flag-name: >-
         ${{

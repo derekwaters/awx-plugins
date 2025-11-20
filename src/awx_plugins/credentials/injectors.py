@@ -231,3 +231,14 @@ def terraform(
             path,
             private_data_dir,
         )
+
+
+def hcp_terraform(
+    cred: Credential,
+    env: EnvVarsType,
+    private_data_dir: str,
+) -> None:
+    env['TF_TOKEN'] = str(cred.get_input('token', default=''))
+    env['TF_HOSTNAME'] = str(
+        cred.get_input('hostname', default='app.terraform.io'),
+    )

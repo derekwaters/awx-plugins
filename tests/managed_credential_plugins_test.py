@@ -28,6 +28,7 @@ from awx_plugins.interfaces._temporary_private_inject_api import (  # noqa: WPS4
 
 import yaml
 
+from awx_plugins.credentials._managed_types.terraform import hcp_terraform
 from awx_plugins.credentials.plugins import (  # noqa: WPS235
     aws,
     azure_rm,
@@ -454,6 +455,47 @@ class YamlEnvFile(BaseEnvFile[dict[str, IniEntryDataType]]):
                 JsonEnvFile('GOOGLE_BACKEND_CREDENTIALS', get_gce_creds()),
             ],
             id='terraform-gcs',
+        ),
+        pytest.param(
+            hcp_terraform,
+            {
+                'token': 'hcp-token-123',
+            },
+            {
+                'TF_TOKEN': 'hcp-token-123',
+                'TF_HOSTNAME': 'app.terraform.io',
+            },
+            {'TF_TOKEN': HIDDEN_PASSWORD},
+            [],
+            id='hcp-terraform-default-hostname',
+        ),
+        pytest.param(
+            hcp_terraform,
+            {
+                'hostname': 'terraform.example.com',
+                'token': 'hcp-custom-token-456',
+            },
+            {
+                'TF_TOKEN': 'hcp-custom-token-456',
+                'TF_HOSTNAME': 'terraform.example.com',
+            },
+            {'TF_TOKEN': HIDDEN_PASSWORD},
+            [],
+            id='hcp-terraform-custom-hostname',
+        ),
+        pytest.param(
+            hcp_terraform,
+            {
+                'hostname': 'app.terraform.io',
+                'token': 'hcp-explicit-default-789',
+            },
+            {
+                'TF_TOKEN': 'hcp-explicit-default-789',
+                'TF_HOSTNAME': 'app.terraform.io',
+            },
+            {'TF_TOKEN': HIDDEN_PASSWORD},
+            [],
+            id='hcp-terraform-explicit-default-hostname',
         ),
         pytest.param(
             net,

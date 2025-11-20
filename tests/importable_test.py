@@ -73,6 +73,15 @@ credential_plugins = (
 )
 
 
+managed_credential_plugins = (
+    EntryPointParam(
+        'awx_plugins.managed_credentials.supported',
+        'hcp_terraform',
+        'awx_plugins.credentials._managed_types.terraform:hcp_terraform',
+    ),
+)
+
+
 inventory_plugins = (
     EntryPointParam(
         'awx_plugins.inventory',
@@ -174,6 +183,13 @@ with_credential_plugins = pytest.mark.parametrize(
 )
 
 
+with_managed_credential_plugins = pytest.mark.parametrize(
+    'entry_point',
+    managed_credential_plugins,
+    ids=str,
+)
+
+
 with_inventory_plugins = pytest.mark.parametrize(
     'entry_point',
     inventory_plugins,
@@ -183,7 +199,7 @@ with_inventory_plugins = pytest.mark.parametrize(
 
 with_all_plugins = pytest.mark.parametrize(
     'entry_point',
-    credential_plugins + inventory_plugins,
+    credential_plugins + managed_credential_plugins + inventory_plugins,
     ids=str,
 )
 
@@ -211,6 +227,18 @@ def test_entry_points_are_credential_plugin(
 
     loaded_plugin_class_name = type(loaded_plugin_class).__name__
     assert loaded_plugin_class_name == 'CredentialPlugin'
+
+
+@with_managed_credential_plugins
+def test_entry_points_are_managed_credential_type(
+    entry_point: EntryPointParam,
+) -> None:
+    """Ensure all exposed managed credential plugins are of the same class."""  # noqa: D200, DAR101; FIXME
+    entry_points = _discover_entry_points(group=entry_point.group)
+    loaded_plugin_class = entry_points[entry_point.name].load()
+
+    loaded_plugin_class_name = type(loaded_plugin_class).__name__
+    assert loaded_plugin_class_name == 'ManagedCredentialType'
 
 
 @with_inventory_plugins

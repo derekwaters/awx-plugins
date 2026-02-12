@@ -1,5 +1,3 @@
-from unittest import mock
-
 import pytest
 from pytest_mock import MockerFixture
 
@@ -30,7 +28,7 @@ def test_hashivault_approle_auth() -> None:
     assert res == expected_res
 
 
-def test_hashivault_kubernetes_auth() -> None:
+def test_hashivault_kubernetes_auth(mocker: MockerFixture) -> None:
     kwargs = {
         'kubernetes_role': 'the_kubernetes_role',
     }
@@ -38,15 +36,15 @@ def test_hashivault_kubernetes_auth() -> None:
         'role': 'the_kubernetes_role',
         'jwt': 'the_jwt',
     }
-    with mock.patch('pathlib.Path') as path_mock:
-        mock.mock_open(path_mock.return_value.open, read_data='the_jwt')
-        res = hashivault.kubernetes_auth(  # type: ignore[no-untyped-call]
-            **kwargs,
-        )
-        path_mock.assert_called_with(
-            '/var/run/secrets/kubernetes.io/serviceaccount/token',
-        )
-        assert res == expected_res
+    path_mock = mocker.patch('pathlib.Path')
+    path_mock.return_value.open = mocker.mock_open(read_data='the_jwt')
+    res = hashivault.kubernetes_auth(  # type: ignore[no-untyped-call]
+        **kwargs,
+    )
+    path_mock.assert_called_with(
+        '/var/run/secrets/kubernetes.io/serviceaccount/token',
+    )
+    assert res == expected_res
 
 
 def test_hashivault_client_cert_auth_explicit_role() -> None:
@@ -88,42 +86,42 @@ def test_hashivault_handle_auth_token() -> None:
     assert token == kwargs['token']
 
 
-def test_hashivault_handle_auth_approle() -> None:
+def test_hashivault_handle_auth_approle(mocker: MockerFixture) -> None:
     kwargs = {
         'role_id': 'the_role_id',
         'secret_id': 'the_secret_id',
     }
-    with mock.patch.object(hashivault, 'method_auth') as method_mock:
-        method_mock.return_value = 'the_token'
-        token = hashivault.handle_auth(  # type: ignore[no-untyped-call]
-            **kwargs,
-        )
-        method_mock.assert_called_with(**kwargs, auth_param=kwargs)
-        assert token == 'the_token'
+    method_mock = mocker.patch.object(hashivault, 'method_auth')
+    method_mock.return_value = 'the_token'
+    token = hashivault.handle_auth(  # type: ignore[no-untyped-call]
+        **kwargs,
+    )
+    method_mock.assert_called_with(**kwargs, auth_param=kwargs)
+    assert token == 'the_token'
 
 
-def test_hashivault_handle_auth_kubernetes() -> None:
+def test_hashivault_handle_auth_kubernetes(mocker: MockerFixture) -> None:
     kwargs = {
         'kubernetes_role': 'the_kubernetes_role',
     }
-    with mock.patch.object(hashivault, 'method_auth') as method_mock:
-        with mock.patch('pathlib.Path') as path_mock:
-            mock.mock_open(path_mock.return_value.open, read_data='the_jwt')
-            method_mock.return_value = 'the_token'
-            token = hashivault.handle_auth(  # type: ignore[no-untyped-call]
-                **kwargs,
-            )
-            method_mock.assert_called_with(
-                **kwargs,
-                auth_param={
-                    'role': 'the_kubernetes_role',
-                    'jwt': 'the_jwt',
-                },
-            )
-            assert token == 'the_token'
+    method_mock = mocker.patch.object(hashivault, 'method_auth')
+    path_mock = mocker.patch('pathlib.Path')
+    path_mock.return_value.open = mocker.mock_open(read_data='the_jwt')
+    method_mock.return_value = 'the_token'
+    token = hashivault.handle_auth(  # type: ignore[no-untyped-call]
+        **kwargs,
+    )
+    method_mock.assert_called_with(
+        **kwargs,
+        auth_param={
+            'role': 'the_kubernetes_role',
+            'jwt': 'the_jwt',
+        },
+    )
+    assert token == 'the_token'
 
 
-def test_hashivault_handle_auth_client_cert() -> None:
+def test_hashivault_handle_auth_client_cert(mocker: MockerFixture) -> None:
     kwargs = {
         'client_cert_public': 'foo',
         'client_cert_private': 'bar',
@@ -132,13 +130,13 @@ def test_hashivault_handle_auth_client_cert() -> None:
     auth_params = {
         'name': 'test-cert-1',
     }
-    with mock.patch.object(hashivault, 'method_auth') as method_mock:
-        method_mock.return_value = 'the_token'
-        token = hashivault.handle_auth(  # type: ignore[no-untyped-call]
-            **kwargs,
-        )
-        method_mock.assert_called_with(**kwargs, auth_param=auth_params)
-        assert token == 'the_token'
+    method_mock = mocker.patch.object(hashivault, 'method_auth')
+    method_mock.return_value = 'the_token'
+    token = hashivault.handle_auth(  # type: ignore[no-untyped-call]
+        **kwargs,
+    )
+    method_mock.assert_called_with(**kwargs, auth_param=auth_params)
+    assert token == 'the_token'
 
 
 def test_hashivault_handle_auth_not_enough_args() -> None:

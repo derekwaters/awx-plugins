@@ -1,8 +1,7 @@
 """Tests Azure Key Vault credential plugin."""
 
-from unittest.mock import Mock
-
 import pytest
+from pytest_mock import MockerFixture
 
 from azure.identity import CredentialUnavailableError
 from azure.keyvault.secrets import (
@@ -25,7 +24,10 @@ class _FakeSecretClient(SecretClient):
         return KeyVaultSecret(properties=props, value='test-secret')
 
 
-def test_azure_kv_invalid_env(monkeypatch: pytest.MonkeyPatch) -> None:
+def test_azure_kv_invalid_env(
+    mocker: MockerFixture,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
     """Test running outside of Azure raises error.
 
     When credentials are incomplete (e.g., empty client ID), the code falls
@@ -34,7 +36,7 @@ def test_azure_kv_invalid_env(monkeypatch: pytest.MonkeyPatch) -> None:
     a DNS error before the credential check, so we mock SecretClient to
     simulate the expected CredentialUnavailableError.
     """
-    mock_client = Mock()
+    mock_client = mocker.Mock()
     mock_client.return_value.get_secret.side_effect = (
         CredentialUnavailableError(
             message='ManagedIdentityCredential authentication unavailable.',

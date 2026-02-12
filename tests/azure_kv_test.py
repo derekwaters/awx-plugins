@@ -37,13 +37,13 @@ def test_azure_kv_invalid_env(
     simulate the expected CredentialUnavailableError.
     """
     mock_client = mocker.Mock()
+    mock_client = mocker.patch.object(azure_kv, 'SecretClient')
     mock_client.return_value.get_secret.side_effect = (
         CredentialUnavailableError(
             message='ManagedIdentityCredential authentication unavailable.',
         )
     )
     monkeypatch.setattr(azure_kv, 'SecretClient', mock_client)
-
     error_msg = (
         'You are not operating on an Azure VM, so the Managed Identity '
         'feature is unavailable. Please provide the full Client ID, '
@@ -55,8 +55,24 @@ def test_azure_kv_invalid_env(
         match=error_msg,
     ):
         azure_kv.azure_keyvault_backend(
-            url='https://test.vault.azure.net',
+            url='https://keyvault.test',
             client='',
+            secret='client-secret',
+            tenant='tenant-id',
+            secret_field='secret',
+            secret_version='',
+        )
+
+
+def test_azure_kv_dns_error() -> None:
+    """Test DNS resolution error is converted to RuntimeError."""
+    with pytest.raises(
+        RuntimeError,
+        match='Failed to connect to Azure Key Vault',
+    ):
+        azure_kv.azure_keyvault_backend(
+            url='https://keyvault.test',
+            client='client-id',
             secret='client-secret',
             tenant='tenant-id',
             secret_field='secret',
@@ -90,7 +106,7 @@ def test_azure_kv_valid_auth(
     )
 
     keyvault_secret = azure_kv.azure_keyvault_backend(
-        url='https://test.vault.azure.net',
+        url='https://keyvault.test',
         client=client,
         secret=secret,
         tenant=tenant,

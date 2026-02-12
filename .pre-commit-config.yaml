@@ -307,7 +307,7 @@ repos:
     - hypothesis  # needed by pylint-pytest due to pytest-cov loading coverage
     - msrestazure  # needed by credentials.azure_kv
     - PyGithub  # needed by credentials.github_app
-    - pylint-pytest ~= 2.0.0a0
+    - pylint-pytest ~= 2.0.0a1
     - pytest-cov  # needed by pylint-pytest since it picks up pytest's args
     - pytest-mock  # needed by pylint-pytest since it picks up pytest's args
     - pytest-subtests  # needed by pylint-pytest since it picks up pytest's args

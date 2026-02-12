@@ -198,10 +198,10 @@ class _FakeAppInstallationAuth(AppInstallationAuth):
     ids=('install-id-int', 'install-id-str'),
 )
 @pytest.mark.filterwarnings(
-    "ignore:The RSA key is "  # noqa: ISC004  # intentional
-    f"{MINIMUM_RSA_KEY_SIZE} bits long, which is below the minimum "
-    "recommended size of 2048 bits. See NIST SP 800-131A.:"
-    "jwt.warnings.InsecureKeyLengthWarning",
+    'ignore:The RSA key is '  # noqa: ISC004  # intentional
+    f'{MINIMUM_RSA_KEY_SIZE} bits long, which is below the minimum '
+    'recommended size of 2048 bits. See NIST SP 800-131A.:'
+    'jwt.warnings.InsecureKeyLengthWarning',
 )
 # pylint: disable-next=too-many-arguments,too-many-positional-arguments
 def test_github_app_github_authentication(  # noqa: WPS211

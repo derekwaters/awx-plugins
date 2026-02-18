@@ -1,3 +1,5 @@
+"""Tests for HashiCorp Vault credential plugins."""
+
 import pytest
 from pytest_mock import MockerFixture
 
@@ -5,6 +7,7 @@ from awx_plugins.credentials import hashivault
 
 
 def test_hashivault_approle_auth() -> None:
+    """Test ``approle_auth()`` method returns known secret."""
     kwargs = {
         'role_id': 'the_role_id',
         'secret_id': 'the_secret_id',
@@ -18,6 +21,7 @@ def test_hashivault_approle_auth() -> None:
 
 
 def test_hashivault_kubernetes_auth(mocker: MockerFixture) -> None:
+    """Test ``kubernetes_auth()`` method returns known JWT."""
     kwargs = {
         'kubernetes_role': 'the_kubernetes_role',
     }
@@ -37,6 +41,7 @@ def test_hashivault_kubernetes_auth(mocker: MockerFixture) -> None:
 
 
 def test_hashivault_client_cert_auth_explicit_role() -> None:  # noqa: WPS118
+    """Test ``client_cert_auth()`` with explicit role returns a certificate."""
     kwargs = {
         'client_cert_role': 'test-cert-1',
     }
@@ -50,6 +55,7 @@ def test_hashivault_client_cert_auth_explicit_role() -> None:  # noqa: WPS118
 
 
 def test_hashivault_client_cert_auth_no_role() -> None:
+    """Test ``client_cert_auth()`` with no role returns no name."""
     kwargs: dict[str, str] = {}
     expected_res = {
         'name': None,
@@ -61,6 +67,7 @@ def test_hashivault_client_cert_auth_no_role() -> None:
 
 
 def test_hashivault_userpass_auth() -> None:
+    """Test ``userpass_auth()`` returns the password."""
     kwargs = {'username': 'the_username', 'password': 'the_password'}
     expected_res = {'username': 'the_username', 'password': 'the_password'}
     res = hashivault.userpass_auth(**kwargs)  # type: ignore[no-untyped-call]
@@ -68,6 +75,7 @@ def test_hashivault_userpass_auth() -> None:
 
 
 def test_hashivault_handle_auth_token() -> None:
+    """Test ``handle_auth()`` with token auth returns the token."""
     kwargs = {
         'token': 'the_token',
     }
@@ -76,6 +84,7 @@ def test_hashivault_handle_auth_token() -> None:
 
 
 def test_hashivault_handle_auth_approle(mocker: MockerFixture) -> None:
+    """Test ``handle_auth()`` with approle auth returns the token."""
     kwargs = {
         'role_id': 'the_role_id',
         'secret_id': 'the_secret_id',
@@ -90,6 +99,7 @@ def test_hashivault_handle_auth_approle(mocker: MockerFixture) -> None:
 
 
 def test_hashivault_handle_auth_kubernetes(mocker: MockerFixture) -> None:
+    """Test ``handle_auth()`` with k8s role and JWT auth returns a token."""
     kwargs = {
         'kubernetes_role': 'the_kubernetes_role',
     }
@@ -111,6 +121,7 @@ def test_hashivault_handle_auth_kubernetes(mocker: MockerFixture) -> None:
 
 
 def test_hashivault_handle_auth_client_cert(mocker: MockerFixture) -> None:
+    """Test ``handle_auth()`` with client certificate auth returns a token."""
     kwargs = {
         'client_cert_public': 'foo',
         'client_cert_private': 'bar',
@@ -129,5 +140,6 @@ def test_hashivault_handle_auth_client_cert(mocker: MockerFixture) -> None:
 
 
 def test_hashivault_handle_auth_not_enough_args() -> None:
+    """Test ``handle_auth()`` errors out on inssuficient arguments."""
     with pytest.raises(Exception):
         hashivault.handle_auth()  # type: ignore[no-untyped-call]

@@ -4,6 +4,7 @@ import pytest
 from pytest_mock import MockerFixture
 
 from awx_plugins.credentials import hashivault
+from awx_plugins.credentials.plugin import CredentialPlugin
 
 
 def test_hashivault_approle_auth() -> None:
@@ -147,3 +148,88 @@ def test_hashivault_handle_auth_not_enough_args() -> None:
     )
     with pytest.raises(Exception, match=expected_error_msg):
         hashivault.handle_auth()  # type: ignore[no-untyped-call]
+
+
+@pytest.mark.parametrize(
+    ('plugin', 'field_type', 'expected_ids'),
+    (
+        pytest.param(
+            hashivault.hashivault_kv_plugin,
+            'fields',
+            [
+                'url',
+                'token',
+                'cacert',
+                'role_id',
+                'secret_id',
+                'client_cert_public',
+                'client_cert_private',
+                'client_cert_role',
+                'namespace',
+                'kubernetes_role',
+                'username',
+                'password',
+                'default_auth_path',
+                'api_version',
+            ],
+            id='kv-fields',
+        ),
+        pytest.param(
+            hashivault.hashivault_kv_plugin,
+            'metadata',
+            [
+                'secret_backend',
+                'secret_path',
+                'auth_path',
+                'secret_key',
+                'secret_version',
+            ],
+            id='kv-metadata',
+        ),
+        pytest.param(
+            hashivault.hashivault_ssh_plugin,
+            'fields',
+            [
+                'url',
+                'token',
+                'cacert',
+                'role_id',
+                'secret_id',
+                'client_cert_public',
+                'client_cert_private',
+                'client_cert_role',
+                'namespace',
+                'kubernetes_role',
+                'username',
+                'password',
+                'default_auth_path',
+            ],
+            id='ssh-fields',
+        ),
+        pytest.param(
+            hashivault.hashivault_ssh_plugin,
+            'metadata',
+            [
+                'public_key',
+                'secret_path',
+                'auth_path',
+                'role',
+                'valid_principals',
+            ],
+            id='ssh-metadata',
+        ),
+    ),
+)
+def test_plugin_input_ids(
+    plugin: CredentialPlugin,
+    field_type: str,
+    expected_ids: list[str],
+) -> None:
+    """Verify plugin input fields/metadata are present with expected IDs."""
+    plugin_inputs = plugin.inputs
+    actual_ids = [
+        plugin['id']
+        # NOTE: `CredentialPlugin` aren't yet fully typed:
+        for plugin in plugin_inputs[field_type]  # type: ignore[index]
+    ]
+    assert actual_ids == expected_ids

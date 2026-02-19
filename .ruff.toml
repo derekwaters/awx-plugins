@@ -310,15 +310,12 @@ testing = [
 
 "tests/credential_plugins_test.py" = [
   # The following ignores must be fixed and the entries removed from this config:
-  "B017",
   "C419",
   "D100",
   "D102",
   "D103",
   "D205",
   "D209",
-  "D400",
-  "PT011",
 ]
 
 "toxfile.py" = [

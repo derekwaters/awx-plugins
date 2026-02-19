@@ -19,7 +19,7 @@ from awx_plugins.interfaces._temporary_private_django_api import (  # noqa: WPS4
 )
 
 from azure.core.credentials import TokenCredential
-from azure.core.exceptions import ServiceRequestError
+from azure.core.exceptions import AzureError, ServiceRequestError
 from azure.identity import (
     ClientSecretCredential,
     CredentialUnavailableError,
@@ -162,6 +162,10 @@ def azure_keyvault_backend(  # noqa: WPS211
         raise RuntimeError(
             f'Failed to connect to Azure Key Vault: {request_err}',
         ) from request_err
+    except AzureError as error:
+        raise RuntimeError(
+            f'Error retrieving secret from Azure Key Vault: {error}',
+        )
     return keyvault_secret.value
 
 

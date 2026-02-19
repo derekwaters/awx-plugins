@@ -141,5 +141,9 @@ def test_hashivault_handle_auth_client_cert(mocker: MockerFixture) -> None:
 
 def test_hashivault_handle_auth_not_enough_args() -> None:
     """Test ``handle_auth()`` errors out on inssuficient arguments."""
-    with pytest.raises(Exception):
+    expected_error_msg = (
+        r'^Token, Username/Password, AppRole, Kubernetes, or TLS '
+        r'authentication parameters must be set$'
+    )
+    with pytest.raises(Exception, match=expected_error_msg):
         hashivault.handle_auth()  # type: ignore[no-untyped-call]

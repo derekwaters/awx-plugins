@@ -27,7 +27,6 @@ class _FakeSecretClient(SecretClient):
 
 def test_azure_kv_invalid_env(
     mocker: MockerFixture,
-    monkeypatch: pytest.MonkeyPatch,
 ) -> None:
     """Test running outside of Azure raises error.
 
@@ -37,14 +36,13 @@ def test_azure_kv_invalid_env(
     a DNS error before the credential check, so we mock SecretClient to
     simulate the expected CredentialUnavailableError.
     """
-    mock_client = mocker.Mock()
-    mock_client = mocker.patch.object(azure_kv, 'SecretClient')
+    mock_client = mocker.patch.object(azure_kv, 'SecretClient', autospec=True)
     mock_client.return_value.get_secret.side_effect = (
         CredentialUnavailableError(
             message='ManagedIdentityCredential authentication unavailable.',
         )
     )
-    monkeypatch.setattr(azure_kv, 'SecretClient', mock_client)
+
     error_msg = (
         'You are not operating on an Azure VM, so the Managed Identity '
         'feature is unavailable. Please provide the full Client ID, '
@@ -69,7 +67,7 @@ def test_azure_kv_dns_error() -> None:
     """Test DNS resolution error is converted to RuntimeError."""
     with pytest.raises(
         RuntimeError,
-        match='Failed to connect to Azure Key Vault',
+        match=r'^Failed to connect to Azure Key Vault: .',
     ):
         azure_kv.azure_keyvault_backend(
             url='https://keyvault.test',
@@ -83,19 +81,16 @@ def test_azure_kv_dns_error() -> None:
 
 def test_azure_kv_generic_azure_error(
     mocker: MockerFixture,
-    monkeypatch: pytest.MonkeyPatch,
 ) -> None:
     """Test generic AzureError is converted to RuntimeError."""
-    mock_client = mocker.Mock()
-    mock_client = mocker.patch.object(azure_kv, 'SecretClient')
+    mock_client = mocker.patch.object(azure_kv, 'SecretClient', autospec=True)
     mock_client.return_value.get_secret.side_effect = AzureError(
         message='Secret not found or access denied',
     )
-    monkeypatch.setattr(azure_kv, 'SecretClient', mock_client)
 
     with pytest.raises(
         RuntimeError,
-        match='Error retrieving secret from Azure Key Vault',
+        match=r'^Error retrieving secret from Azure Key Vault: .',
     ):
         azure_kv.azure_keyvault_backend(
             url='https://keyvault.test',

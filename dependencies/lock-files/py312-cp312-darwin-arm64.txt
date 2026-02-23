@@ -10,7 +10,7 @@ attrs==25.4.0
     # via pytest-subtests
 awx-plugins-interfaces==0.0.1a5
     # via awx-plugins-core (pyproject.toml)
-azure-core==1.38.1
+azure-core==1.38.2
     # via
     #   azure-identity
     #   azure-keyvault-certificates
@@ -27,9 +27,9 @@ azure-keyvault-keys==4.11.0
     # via azure-keyvault
 azure-keyvault-secrets==4.10.0
     # via azure-keyvault
-boto3==1.42.49
+boto3==1.42.54
     # via awx-plugins-core (pyproject.toml)
-botocore==1.42.49
+botocore==1.42.54
     # via
     #   boto3
     #   s3transfer
@@ -63,7 +63,7 @@ cryptography==46.0.5
     #   pyjwt
 execnet==2.1.2
     # via pytest-xdist
-hypothesis==6.151.6
+hypothesis==6.151.9
     # via -r dependencies/direct/py.in
 idna==3.11
     # via requests

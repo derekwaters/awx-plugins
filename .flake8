@@ -179,6 +179,9 @@ rst-roles =
   event,
 
 # wemake-python-styleguide
+# WPS111:
+# `_t` will be enforced by `flake8-typing-as-t`
+allowed-domain-names = _t
 i-control-code = false
 # WPS226:
 max-string-usages = 85

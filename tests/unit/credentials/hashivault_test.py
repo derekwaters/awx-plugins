@@ -77,6 +77,17 @@ def test_hashivault_userpass_auth() -> None:
     assert res == expected_res
 
 
+def test_hashivault_workload_identity_auth() -> None:
+    """Test ``workload_identity_auth()`` returns the token."""
+    kwargs = {
+        'workload_identity_token': 'the_jwt_token',
+        'jwt_role': 'the_jwt_role',
+    }
+    expected_res = {'role': 'the_jwt_role', 'jwt': 'the_jwt_token'}
+    res = hashivault.workload_identity_auth(**kwargs)  # type: ignore[no-untyped-call]
+    assert res == expected_res
+
+
 def test_hashivault_handle_auth_token() -> None:
     """Test ``handle_auth()`` with token auth returns the token."""
     kwargs = {
@@ -138,6 +149,27 @@ def test_hashivault_handle_auth_client_cert(mocker: MockerFixture) -> None:
     token = hashivault.handle_auth(  # type: ignore[no-untyped-call]
         **kwargs,
     )
+    method_mock.assert_called_with(**kwargs, auth_param=auth_params)
+    assert token == 'the_token'
+
+
+def test_hashivault_handle_auth_workload_identity(
+    mocker: MockerFixture,
+) -> None:
+    """Test handle auth with workload identity auth."""
+    kwargs = {
+        'workload_identity_token': 'the_jwt_token',
+        'jwt_role': 'the_jwt_role',
+        'default_auth_path': 'jwt',
+        'url': 'https://vault.example.com',
+    }
+    auth_params = {
+        'role': 'the_jwt_role',
+        'jwt': 'the_jwt_token',
+    }
+    method_mock = mocker.patch.object(hashivault, 'method_auth')
+    method_mock.return_value = 'the_token'
+    token = hashivault.handle_auth(**kwargs)  # type: ignore[no-untyped-call]
     method_mock.assert_called_with(**kwargs, auth_param=auth_params)
     assert token == 'the_token'
 
@@ -219,6 +251,55 @@ def test_hashivault_handle_auth_not_enough_args() -> None:
                 'valid_principals',
             ],
             id='ssh-metadata',
+        ),
+        pytest.param(
+            hashivault.hashivault_kv_oidc_plugin,
+            'fields',
+            [
+                'url',
+                'api_version',
+                'cacert',
+                'default_auth_path',
+                'jwt_role',
+                'jwt_aud',
+                'namespace',
+            ],
+            id='kv-oidc-fields',
+        ),
+        pytest.param(
+            hashivault.hashivault_kv_oidc_plugin,
+            'metadata',
+            [
+                'secret_backend',
+                'secret_path',
+                'secret_key',
+                'secret_version',
+            ],
+            id='kv-oidc-metadata',
+        ),
+        pytest.param(
+            hashivault.hashivault_ssh_oidc_plugin,
+            'fields',
+            [
+                'url',
+                'cacert',
+                'default_auth_path',
+                'jwt_role',
+                'jwt_aud',
+                'namespace',
+            ],
+            id='ssh-oidc-fields',
+        ),
+        pytest.param(
+            hashivault.hashivault_ssh_oidc_plugin,
+            'metadata',
+            [
+                'public_key',
+                'secret_path',
+                'role',
+                'valid_principals',
+            ],
+            id='ssh-oidc-metadata',
         ),
     ),
 )

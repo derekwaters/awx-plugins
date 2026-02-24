@@ -1,5 +1,7 @@
 """Tests for HashiCorp Vault credential plugins."""
 
+import typing as _t
+
 import pytest
 from pytest_mock import MockerFixture
 
@@ -222,14 +224,10 @@ def test_hashivault_handle_auth_not_enough_args() -> None:
 )
 def test_plugin_input_ids(
     plugin: CredentialPlugin,
-    field_type: str,
+    field_type: _t.Literal['fields', 'metadata'],
     expected_ids: list[str],
 ) -> None:
     """Verify plugin input fields/metadata are present with expected IDs."""
     plugin_inputs = plugin.inputs
-    actual_ids = [
-        plugin['id']
-        # NOTE: `CredentialPlugin` aren't yet fully typed:
-        for plugin in plugin_inputs[field_type]  # type: ignore[index]
-    ]
+    actual_ids = [plugin['id'] for plugin in plugin_inputs[field_type]]
     assert actual_ids == expected_ids

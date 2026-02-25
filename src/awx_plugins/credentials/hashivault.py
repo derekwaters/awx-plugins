@@ -310,10 +310,10 @@ hashi_kv_inputs: _types.PluginInputs = {
         secret_version_metadata,
     ],
     'required': [
-        'url',
-        'secret_path',
-        'api_version',
-        'secret_key',
+        url_field['id'],
+        secret_path_metadata['id'],
+        api_version_field['id'],
+        secret_key_metadata['id'],
     ],
 }
 
@@ -334,13 +334,13 @@ hashi_kv_oidc_inputs: _types.PluginInputs = {
         secret_version_metadata,
     ],
     'required': [
-        'url',
-        'api_version',
-        'default_auth_path',
-        'jwt_role',
-        'jwt_aud',
-        'secret_path',
-        'secret_key',
+        url_field['id'],
+        api_version_field['id'],
+        jwt_auth_path_field['id'],
+        jwt_role_field['id'],
+        jwt_audience_field['id'],
+        secret_path_metadata['id'],
+        secret_key_metadata['id'],
     ],
 }
 
@@ -368,10 +368,10 @@ hashi_ssh_inputs: _types.PluginInputs = {
         valid_principals_metadata,
     ],
     'required': [
-        'url',
-        'secret_path',
-        'public_key',
-        'role',
+        url_field['id'],
+        secret_path_metadata['id'],
+        public_key_metadata['id'],
+        role_metadata['id'],
     ],
 }
 
@@ -391,13 +391,13 @@ hashi_ssh_oidc_inputs: _types.PluginInputs = {
         valid_principals_metadata,
     ],
     'required': [
-        'url',
-        'default_auth_path',
-        'jwt_role',
-        'jwt_aud',
-        'secret_path',
-        'public_key',
-        'role',
+        url_field['id'],
+        jwt_auth_path_field['id'],
+        jwt_role_field['id'],
+        jwt_audience_field['id'],
+        secret_path_metadata['id'],
+        public_key_metadata['id'],
+        role_metadata['id'],
     ],
 }
 

@@ -93,7 +93,8 @@ def test_hashivault_workload_identity_auth(
         'jwt': sentinel_jwt_value,
     }
 
-    computed_jwt_object = hashivault.workload_identity_auth(
+    auth = hashivault.workload_identity_auth
+    computed_jwt_object = auth(  # type: ignore[no-untyped-call]
         workload_identity_token=sentinel_jwt_value,
         jwt_role=sentinel_role_value,
         **arbitrary_kwargs,
@@ -187,8 +188,11 @@ def test_hashivault_handle_auth_workload_identity(
         autospec=True,
         return_value='the_token',
     )
-    token = hashivault.handle_auth(**kwargs)  # type: ignore[no-untyped-call]
-    method_mock.assert_called_with(**kwargs, auth_param=auth_params)
+    token = hashivault.handle_auth(**workload_id_kwargs)  # type: ignore[no-untyped-call]
+    method_mock.assert_called_with(
+        **workload_id_kwargs,
+        auth_param=auth_params,
+    )
     assert token == 'the_token'
 
 

@@ -181,7 +181,12 @@ def test_hashivault_handle_auth_workload_identity(
         'role': 'the_jwt_role',
         'jwt': 'the_jwt_token',
     }
-    method_mock = mocker.patch.object(hashivault, 'method_auth', autospec=True, return_value='the_token')
+    method_mock = mocker.patch.object(
+        hashivault,
+        'method_auth',
+        autospec=True,
+        return_value='the_token',
+    )
     token = hashivault.handle_auth(**kwargs)  # type: ignore[no-untyped-call]
     method_mock.assert_called_with(**kwargs, auth_param=auth_params)
     assert token == 'the_token'

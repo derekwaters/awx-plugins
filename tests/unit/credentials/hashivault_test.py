@@ -82,11 +82,16 @@ def test_hashivault_userpass_auth() -> None:
     ({}, {'utter': 'nonsense'}),
     ids=('no-additional-keyword-args', 'with-additional-keyword-arg'),
 )
-def test_hashivault_workload_identity_auth(arbitrary_kwargs: dict[str, str]) -> None:
+def test_hashivault_workload_identity_auth(
+    arbitrary_kwargs: dict[str, str],
+) -> None:
     """Test ``workload_identity_auth()`` returns the token."""
     sentinel_role_value = 'the_jwt_role'
     sentinel_jwt_value = 'the_jwt_token'
-    expected_jwt_object = {'role': sentinel_role_value, 'jwt': sentinel_jwt_value}
+    expected_jwt_object = {
+        'role': sentinel_role_value,
+        'jwt': sentinel_jwt_value,
+    }
 
     computed_jwt_object = hashivault.workload_identity_auth(
         workload_identity_token=sentinel_jwt_value,

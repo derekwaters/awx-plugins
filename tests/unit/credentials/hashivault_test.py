@@ -77,15 +77,24 @@ def test_hashivault_userpass_auth() -> None:
     assert res == expected_res
 
 
-def test_hashivault_workload_identity_auth() -> None:
+@pytest.mark.parametrize(
+    'arbitrary_kwargs',
+    ({}, {'utter': 'nonsense'}),
+    ids=('no-additional-keyword-args', 'with-additional-keyword-arg'),
+)
+def test_hashivault_workload_identity_auth(arbitrary_kwargs: dict[str, str]) -> None:
     """Test ``workload_identity_auth()`` returns the token."""
-    kwargs = {
-        'workload_identity_token': 'the_jwt_token',
-        'jwt_role': 'the_jwt_role',
-    }
-    expected_res = {'role': 'the_jwt_role', 'jwt': 'the_jwt_token'}
-    res = hashivault.workload_identity_auth(**kwargs)  # type: ignore[no-untyped-call]
-    assert res == expected_res
+    sentinel_role_value = 'the_jwt_role'
+    sentinel_jwt_value = 'the_jwt_token'
+    expected_jwt_object = {'role': sentinel_role_value, 'jwt': sentinel_jwt_value}
+
+    computed_jwt_object = hashivault.workload_identity_auth(
+        workload_identity_token=sentinel_jwt_value,
+        jwt_role=sentinel_role_value,
+        **arbitrary_kwargs,
+    )
+
+    assert computed_jwt_object == expected_jwt_object
 
 
 def test_hashivault_handle_auth_token() -> None:

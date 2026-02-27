@@ -32,6 +32,9 @@ runs:
     shell: bash
   - name: Send coverage data to Coveralls
     if: fromJSON(inputs.calling-job-context).toxenv == 'pre-commit'
+    # NOTE: Revert once https://github.com/ansible/awx-plugins/issues/164
+    # NOTE: is solved.
+    continue-on-error: true
     uses: coverallsapp/github-action@v2
     with:
       debug: ${{ runner.debug == 1 && true || false }}

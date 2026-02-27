@@ -188,6 +188,9 @@ linkcheck_ignore = [
     r'https://github\.com(/[^/]+){2}/actions',  # 404 if no auth
     r'^https://chat\.ansible\.im/#',  # these render fully on front-end
     r'^https://matrix\.to/#',  # these render fully on front-end from anchors
+    # NOTE: Revert once https://github.com/ansible/awx-plugins/issues/164 is
+    # NOTE: solved.
+    r'https://codecov\.io/',
 ]
 linkcheck_anchors_ignore_for_url = (
     r'^https://ansible\.r(eadthedocs|tfd)\.io'  # noqa: ISC004  # intentional

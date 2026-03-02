@@ -338,7 +338,7 @@ def test_plugin_input_ids(
     assert actual_ids == expected_ids
 
 
-def test_workload_identity_token_field_is_internal() -> None:
+def test_workload_identity_token_field_internal() -> None:
     """Verify the workload_identity_token field is marked internal."""
     field = hashivault.workload_identity_token_field
     assert field['id'] == 'workload_identity_token'
@@ -346,9 +346,12 @@ def test_workload_identity_token_field_is_internal() -> None:
     assert field['secret'] is True
 
 
-def test_workload_identity_token_field_not_required() -> None:
+def test_workload_identity_token_field_not_req() -> None:
     """Verify workload_identity_token is not in the required list for OIDC plugins."""
-    for inputs in (hashivault.hashi_kv_oidc_inputs, hashivault.hashi_ssh_oidc_inputs):
+    for inputs in (
+        hashivault.hashi_kv_oidc_inputs,
+        hashivault.hashi_ssh_oidc_inputs,
+    ):
         assert 'workload_identity_token' not in inputs['required']
 
 
@@ -364,8 +367,7 @@ def test_oidc_plugin_has_one_internal_field(
 ) -> None:
     """Verify OIDC plugins have exactly one internal field."""
     internal_fields = [
-        f for f in plugin.inputs['fields']
-        if f.get('internal')
+        field for field in plugin.inputs['fields'] if field.get('internal')
     ]
     assert len(internal_fields) == 1
     assert internal_fields[0]['id'] == 'workload_identity_token'
@@ -383,7 +385,6 @@ def test_non_oidc_plugins_have_no_internal_fields(
 ) -> None:
     """Verify non-OIDC plugins have no internal fields."""
     internal_fields = [
-        f for f in plugin.inputs['fields']
-        if f.get('internal')
+        field for field in plugin.inputs['fields'] if field.get('internal')
     ]
     assert internal_fields == []

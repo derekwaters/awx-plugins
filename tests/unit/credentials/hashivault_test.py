@@ -285,6 +285,7 @@ def test_hashivault_handle_auth_not_enough_args() -> None:
                 'jwt_role',
                 'jwt_aud',
                 'namespace',
+                'workload_identity_token',
             ],
             id='kv-oidc-fields',
         ),
@@ -309,6 +310,7 @@ def test_hashivault_handle_auth_not_enough_args() -> None:
                 'jwt_role',
                 'jwt_aud',
                 'namespace',
+                'workload_identity_token',
             ],
             id='ssh-oidc-fields',
         ),
@@ -334,3 +336,54 @@ def test_plugin_input_ids(
     plugin_inputs = plugin.inputs
     actual_ids = [plugin['id'] for plugin in plugin_inputs[field_type]]
     assert actual_ids == expected_ids
+
+
+def test_workload_identity_token_field_is_internal() -> None:
+    """Verify the workload_identity_token field is marked internal."""
+    field = hashivault.workload_identity_token_field
+    assert field['id'] == 'workload_identity_token'
+    assert field['internal'] is True
+    assert field['secret'] is True
+
+
+def test_workload_identity_token_field_not_required() -> None:
+    """Verify workload_identity_token is not in the required list for OIDC plugins."""
+    for inputs in (hashivault.hashi_kv_oidc_inputs, hashivault.hashi_ssh_oidc_inputs):
+        assert 'workload_identity_token' not in inputs['required']
+
+
+@pytest.mark.parametrize(
+    'plugin',
+    (
+        pytest.param(hashivault.hashivault_kv_oidc_plugin, id='kv-oidc'),
+        pytest.param(hashivault.hashivault_ssh_oidc_plugin, id='ssh-oidc'),
+    ),
+)
+def test_oidc_plugin_has_one_internal_field(
+    plugin: CredentialPlugin,
+) -> None:
+    """Verify OIDC plugins have exactly one internal field."""
+    internal_fields = [
+        f for f in plugin.inputs['fields']
+        if f.get('internal')
+    ]
+    assert len(internal_fields) == 1
+    assert internal_fields[0]['id'] == 'workload_identity_token'
+
+
+@pytest.mark.parametrize(
+    'plugin',
+    (
+        pytest.param(hashivault.hashivault_kv_plugin, id='kv'),
+        pytest.param(hashivault.hashivault_ssh_plugin, id='ssh'),
+    ),
+)
+def test_non_oidc_plugins_have_no_internal_fields(
+    plugin: CredentialPlugin,
+) -> None:
+    """Verify non-OIDC plugins have no internal fields."""
+    internal_fields = [
+        f for f in plugin.inputs['fields']
+        if f.get('internal')
+    ]
+    assert internal_fields == []

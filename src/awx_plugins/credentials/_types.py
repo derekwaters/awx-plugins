@@ -15,6 +15,7 @@ class FieldDict(_t.TypedDict):
     help_text: _t.NotRequired[str]
     default: _t.NotRequired[str | bool]
     choices: _t.NotRequired[list[str]]
+    internal: _t.NotRequired[bool]
 
 
 class MetadataDict(_t.TypedDict):

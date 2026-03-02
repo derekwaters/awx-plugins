@@ -189,6 +189,18 @@ jwt_audience_field: _types.FieldDict = {
     ),
 }
 
+workload_identity_token_field: _types.FieldDict = {
+    'id': 'workload_identity_token',
+    'label': _('Workload Identity Token'),
+    'type': 'string',
+    'secret': True,
+    'internal': True,
+    'help_text': _(
+        'JWT token for workload identity authentication. '
+        'Automatically populated by the system.',
+    ),
+}
+
 # Base metadata fields
 secret_path_metadata: _types.MetadataDict = {
     'id': 'secret_path',
@@ -326,6 +338,7 @@ hashi_kv_oidc_inputs: _types.PluginInputs = {
         jwt_role_field,
         jwt_audience_field,
         namespace_field,
+        workload_identity_token_field,
     ],
     'metadata': [
         secret_backend_metadata,
@@ -383,6 +396,7 @@ hashi_ssh_oidc_inputs: _types.PluginInputs = {
         jwt_role_field,
         jwt_audience_field,
         namespace_field,
+        workload_identity_token_field,
     ],
     'metadata': [
         public_key_metadata,

@@ -5,7 +5,7 @@ import typing as _t
 import pytest
 from pytest_mock import MockerFixture
 
-from awx_plugins.credentials import hashivault
+from awx_plugins.credentials import _types, hashivault
 from awx_plugins.credentials.plugin import CredentialPlugin
 
 
@@ -346,13 +346,16 @@ def test_workload_identity_token_field_internal() -> None:
     assert field['secret'] is True
 
 
-def test_workload_identity_token_field_not_req() -> None:
-    """Verify workload_identity_token is not in the required list for OIDC plugins."""
-    for inputs in (
-        hashivault.hashi_kv_oidc_inputs,
-        hashivault.hashi_ssh_oidc_inputs,
-    ):
-        assert 'workload_identity_token' not in inputs['required']
+@pytest.mark.parametrize(
+    'plugin_inputs',
+    (hashivault.hashi_kv_oidc_inputs, hashivault.hashi_ssh_oidc_inputs),
+    ids=('kv-oidc', 'ssh-oidc'),
+)
+def test_workload_identity_token_field_not_req(
+    plugin_inputs: _types.PluginInputs,
+) -> None:
+    """Verify ``workload_identity_token`` is not in the required list for OIDC plugins."""
+    assert 'workload_identity_token' not in plugin_inputs['required']
 
 
 @pytest.mark.parametrize(

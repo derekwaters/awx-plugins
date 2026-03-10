@@ -163,6 +163,16 @@ jwt_auth_path_field: _types.FieldDict = {
     ),
 }
 
+jwt_auth_path_metadata: _types.MetadataDict = {
+    'id': 'default_auth_path',
+    'label': _('Path to Auth'),
+    'type': 'string',
+    'multiline': False,
+    'help_text': _(
+        'The path where the JWT authentication method is mounted e.g, jwt',
+    ),
+}
+
 jwt_role_field: _types.FieldDict = {
     'id': 'jwt_role',
     'label': _('JWT Role'),
@@ -343,6 +353,7 @@ hashi_kv_oidc_inputs: _types.PluginInputs = {
     'metadata': [
         secret_backend_metadata,
         secret_path_metadata,
+        jwt_auth_path_metadata,
         secret_key_metadata,
         secret_version_metadata,
     ],
@@ -401,6 +412,7 @@ hashi_ssh_oidc_inputs: _types.PluginInputs = {
     'metadata': [
         public_key_metadata,
         secret_path_metadata,
+        jwt_auth_path_metadata,
         role_metadata,
         valid_principals_metadata,
     ],

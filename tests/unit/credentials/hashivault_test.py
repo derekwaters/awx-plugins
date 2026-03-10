@@ -295,6 +295,7 @@ def test_hashivault_handle_auth_not_enough_args() -> None:
             [
                 'secret_backend',
                 'secret_path',
+                'default_auth_path',
                 'secret_key',
                 'secret_version',
             ],
@@ -320,6 +321,7 @@ def test_hashivault_handle_auth_not_enough_args() -> None:
             [
                 'public_key',
                 'secret_path',
+                'default_auth_path',
                 'role',
                 'valid_principals',
             ],

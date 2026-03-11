@@ -191,7 +191,7 @@ linkcheck_ignore = [
     # Ref: https://github.com/ansible/awx-plugins/pull/172#issuecomment-4038249530
     # GitHub rate-limits unauthenticated HTTP requests aggressively, causing
     # linkcheck timeouts on blob URLs.
-    r'https://github\.com/(/[^/]+){2}/blob',
+    r'https://github\.com(/[^/]+){2}/blob',
 ]
 linkcheck_anchors_ignore_for_url = (
     r'^https://ansible\.r(eadthedocs|tfd)\.io'  # noqa: ISC004  # intentional

@@ -391,3 +391,39 @@ def test_non_oidc_plugins_have_no_internal_fields(
         field for field in plugin.inputs['fields'] if field.get('internal')
     ]
     assert internal_fields == []
+
+
+@pytest.mark.parametrize(
+    'plugin',
+    (
+        pytest.param(hashivault.hashivault_kv_oidc_plugin, id='kv-oidc'),
+        pytest.param(hashivault.hashivault_ssh_oidc_plugin, id='ssh-oidc'),
+    ),
+)
+def test_oidc_plugin_has_description(plugin: CredentialPlugin) -> None:
+    """Verify OIDC plugins have a non-empty plugin_description."""
+    assert plugin.plugin_description != ''
+
+
+@pytest.mark.parametrize(
+    'plugin',
+    (
+        pytest.param(hashivault.hashivault_kv_plugin, id='kv'),
+        pytest.param(hashivault.hashivault_ssh_plugin, id='ssh'),
+    ),
+)
+def test_non_oidc_plugin_has_empty_description(
+    plugin: CredentialPlugin,
+) -> None:
+    """Verify non-OIDC plugins default to an empty plugin_description."""
+    assert plugin.plugin_description == ''
+
+
+def test_credential_plugin_description_default() -> None:
+    """Verify CredentialPlugin defaults plugin_description to empty string."""
+    plugin = CredentialPlugin(
+        name='test',
+        inputs={'fields': [], 'metadata': [], 'required': []},
+        backend=None,
+    )
+    assert plugin.plugin_description == ''

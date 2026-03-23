@@ -557,11 +557,9 @@ def kv_backend(**kwargs):  # noqa: PLR0915
     token = handle_auth(**kwargs)
 
     try:
-        url = kwargs['url']
         secret_path = kwargs['secret_path']
         secret_backend = kwargs.get('secret_backend')
         secret_key = kwargs.get('secret_key')
-        cacert = kwargs.get('cacert')
         api_version = kwargs['api_version']
 
         request_kwargs = {
@@ -570,7 +568,7 @@ def kv_backend(**kwargs):  # noqa: PLR0915
         }
 
         sess = requests.Session()
-        sess.mount(url, requests.adapters.HTTPAdapter(max_retries=5))
+        sess.mount(kwargs['url'], requests.adapters.HTTPAdapter(max_retries=5))
         sess.headers['Authorization'] = f'Bearer {token}'
         # Compatibility header for older installs of Hashicorp Vault
         sess.headers['X-Vault-Token'] = token
@@ -589,7 +587,6 @@ def kv_backend(**kwargs):  # noqa: PLR0915
                     mount_point, *path = pathlib.Path(
                         secret_path.lstrip(os.sep),
                     ).parts
-                    '/'.join(path)
                 except Exception:
                     mount_point, path = secret_path, []
                 # https://www.vaultproject.io/api/secret/kv/kv-v2.html#read-secret-version
@@ -599,10 +596,13 @@ def kv_backend(**kwargs):  # noqa: PLR0915
         else:
             path_segments = [secret_path]
 
-        request_url = urljoin(url, '/'.join(['v1'] + path_segments)).rstrip(
+        request_url = urljoin(
+            kwargs['url'],
+            '/'.join(['v1'] + path_segments),
+        ).rstrip(
             '/',
         )
-        with CertFiles(cacert) as cert:
+        with CertFiles(kwargs.get('cacert')) as cert:
             request_kwargs['verify'] = cert
             request_retries = 0
             while request_retries < 5:

@@ -554,9 +554,9 @@ def method_auth(**kwargs):
 
 
 def kv_backend(**kwargs):  # noqa: PLR0915
-    try:
-        token = handle_auth(**kwargs)
+    token = handle_auth(**kwargs)
 
+    try:
         url = kwargs['url']
         secret_path = kwargs['secret_path']
         secret_backend = kwargs.get('secret_backend')
@@ -643,9 +643,9 @@ def kv_backend(**kwargs):  # noqa: PLR0915
 
 
 def ssh_backend(**kwargs):
-    try:
-        token = handle_auth(**kwargs)
+    token = handle_auth(**kwargs)
 
+    try:
         url = urljoin(kwargs['url'], 'v1')
         secret_path = kwargs['secret_path']
         role = kwargs['role']

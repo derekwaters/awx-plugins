@@ -397,17 +397,15 @@ def test_non_oidc_plugins_have_no_internal_fields(
 
 
 @pytest.mark.parametrize(
-    ('should_call_post', 'token'),
+    ('token'),
     (
-        pytest.param(False, None, id='none-token'),
-        pytest.param(False, '', id='empty-token'),
+        pytest.param(None, id='none-token'),
+        pytest.param('', id='empty-token'),
     ),
 )
 def test_revoke_token_with_empty_token(
     mocker: MockerFixture,
     token: str | None,
-    *,
-    should_call_post: bool,
 ) -> None:
     """Test ``revoke_token()`` returns early when token is empty."""
     mock_session = mocker.MagicMock()
@@ -419,10 +417,7 @@ def test_revoke_token_with_empty_token(
 
     hashivault.revoke_token(token, **kwargs)
 
-    if should_call_post:
-        mock_session.post.assert_called_once()
-    else:
-        mock_session.post.assert_not_called()
+    mock_session.post.assert_not_called()
 
 
 @pytest.mark.parametrize(

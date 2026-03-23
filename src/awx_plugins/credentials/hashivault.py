@@ -5,7 +5,6 @@ import os
 import pathlib
 import time
 from logging import getLogger
-from os.path import join
 from urllib.parse import urljoin
 
 from awx_plugins.interfaces._temporary_private_django_api import (  # noqa: WPS436
@@ -491,7 +490,7 @@ def revoke_token(token: str, **kwargs):
         return
 
     try:
-        url = join(kwargs['url'], 'v1')
+        url = urljoin(kwargs['url'], 'v1')
         cacert = kwargs.get('cacert')
 
         request_kwargs = {'timeout': 10}
@@ -502,7 +501,7 @@ def revoke_token(token: str, **kwargs):
         if kwargs.get('namespace'):
             sess.headers['X-Vault-Namespace'] = kwargs['namespace']
 
-        request_url = join(url, 'auth/token/revoke-self')
+        request_url = urljoin(url + '/', 'auth/token/revoke-self')
 
         with CertFiles(cacert) as cert:
             request_kwargs['verify'] = cert

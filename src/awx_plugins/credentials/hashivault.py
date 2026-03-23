@@ -484,7 +484,7 @@ def workload_identity_auth(**kwargs):
     return {'role': kwargs.get('jwt_role'), 'jwt': workload_identity_token}
 
 
-def revoke_token(token: str, **kwargs):
+def revoke_token(token: str | None, **kwargs):
     """Revoke a Vault token using the token revoke-self endpoint."""
     if not token:
         return

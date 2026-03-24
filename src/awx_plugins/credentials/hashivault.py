@@ -1,10 +1,11 @@
 # FIXME: the following violations must be addressed gradually and unignored
 # mypy: disable-error-code="arg-type, no-untyped-call, no-untyped-def"
 
+import contextlib as _ctx
 import os
 import pathlib
 import time
-from logging import getLogger
+from collections.abc import Generator
 from urllib.parse import urljoin
 
 from awx_plugins.interfaces._temporary_private_django_api import (  # noqa: WPS436
@@ -16,8 +17,6 @@ import requests
 from . import _types
 from .plugin import CertFiles, CredentialPlugin, raise_for_status
 
-
-logger = getLogger(__name__)
 
 # Base input fields
 url_field: _types.FieldDict = {
@@ -484,32 +483,23 @@ def workload_identity_auth(**kwargs):
     return {'role': kwargs.get('jwt_role'), 'jwt': workload_identity_token}
 
 
-def revoke_token(token: str | None, **kwargs):
-    """Revoke a Vault token using the token revoke-self endpoint."""
-    if not token:
-        return
-
+@_ctx.contextmanager
+def vault_token(**kwargs) -> Generator[str, None, None]:
+    """Context manager that yields a Vault token and revokes it on exit if obtained via workload identity."""
+    token = handle_auth(**kwargs)
     try:
-        url = urljoin(kwargs['url'], 'v1')
-        cacert = kwargs.get('cacert')
-
-        request_kwargs = {'timeout': 10}
-
-        sess = requests.Session()
-        sess.mount(url, requests.adapters.HTTPAdapter(max_retries=3))
-        sess.headers['X-Vault-Token'] = token
-        if kwargs.get('namespace'):
-            sess.headers['X-Vault-Namespace'] = kwargs['namespace']
-
-        request_url = urljoin(url + '/', 'auth/token/revoke-self')
-
-        with CertFiles(cacert) as cert:
-            request_kwargs['verify'] = cert
-            sess.post(request_url, **request_kwargs)
-        # Best effort - don't check response status as token may already be
-        # expired/revoked, which is acceptable
-    except Exception:
-        logger.warning('Failed to revoke ephemeral Vault token')
+        yield token
+    finally:
+        # Only revoke tokens obtained via workload identity authentication
+        if kwargs.get('workload_identity_token'):
+            url = urljoin(kwargs['url'], 'v1/auth/token/revoke-self')
+            sess = requests.Session()
+            sess.headers['X-Vault-Token'] = token
+            if kwargs.get('namespace'):
+                sess.headers['X-Vault-Namespace'] = kwargs['namespace']
+            with CertFiles(kwargs.get('cacert')) as cert:
+                resp = sess.post(url, verify=cert, timeout=30)
+            resp.raise_for_status()
 
 
 def method_auth(**kwargs):
@@ -554,9 +544,7 @@ def method_auth(**kwargs):
 
 
 def kv_backend(**kwargs):  # noqa: PLR0915
-    token = handle_auth(**kwargs)
-
-    try:
+    with vault_token(**kwargs) as token:
         secret_path = kwargs['secret_path']
         secret_backend = kwargs.get('secret_backend')
         secret_key = kwargs.get('secret_key')
@@ -635,17 +623,10 @@ def kv_backend(**kwargs):  # noqa: PLR0915
                     f'{secret_key} is not present at {secret_path}',
                 )
         return json['data']
-    finally:
-        # Only revoke ephemeral vault tokens
-        if 'workload_identity_token' in kwargs:
-            # Revoke token to minimize token lifetime and improve security posture
-            revoke_token(token, **kwargs)
 
 
 def ssh_backend(**kwargs):
-    token = handle_auth(**kwargs)
-
-    try:
+    with vault_token(**kwargs) as token:
         url = urljoin(kwargs['url'], 'v1')
         secret_path = kwargs['secret_path']
         role = kwargs['role']
@@ -687,11 +668,6 @@ def ssh_backend(**kwargs):
                     break
         raise_for_status(resp)
         return resp.json()['data']['signed_key']
-    finally:
-        # Only revoke ephemeral vault tokens
-        if 'workload_identity_token' in kwargs:
-            # Revoke token to minimize token lifetime and improve security posture
-            revoke_token(token, **kwargs)
 
 
 hashivault_kv_plugin = CredentialPlugin(

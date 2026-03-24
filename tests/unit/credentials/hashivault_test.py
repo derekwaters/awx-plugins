@@ -396,27 +396,27 @@ def test_non_oidc_plugins_have_no_internal_fields(
     assert internal_fields == []
 
 
-@pytest.mark.parametrize(
-    ('token'),
-    (
-        pytest.param(None, id='none-token'),
-        pytest.param('', id='empty-token'),
-    ),
-)
-def test_revoke_token_with_empty_token(
+def test_vault_token_no_workload_identity(
     mocker: MockerFixture,
-    token: str | None,
 ) -> None:
-    """Test ``revoke_token()`` returns early when token is empty."""
+    """Test ``vault_token`` context manager doesn't revoke token without workload_identity_token."""
+    mock_handle_auth = mocker.patch.object(
+        hashivault,
+        'handle_auth',
+        return_value='test_token',
+    )
     mock_session = mocker.MagicMock()
     mocker.patch('requests.Session', return_value=mock_session)
 
     kwargs = {
         'url': 'https://vault.example.com',
+        'token': 'test_token',
     }
 
-    hashivault.revoke_token(token, **kwargs)
+    with hashivault.vault_token(**kwargs) as token:
+        assert token == 'test_token'
 
+    mock_handle_auth.assert_called_once_with(**kwargs)
     mock_session.post.assert_not_called()
 
 
@@ -438,98 +438,104 @@ def test_revoke_token_with_empty_token(
         ),
     ),
 )
-def test_revoke_token_success(
+def test_vault_token_revokes_oidc_token(
     mocker: MockerFixture,
     extra_kwargs: dict[str, str],
     expected_headers: dict[str, str],
 ) -> None:
-    """Test ``revoke_token()`` hits the correct endpoint and sets appropriate headers."""
+    """Test ``vault_token`` context manager revokes token for workload identity auth."""
+    mock_handle_auth = mocker.patch.object(
+        hashivault,
+        'handle_auth',
+        return_value='test_token',
+    )
     mock_session = mocker.MagicMock()
     mock_session.headers = {}
-    mock_post = mocker.MagicMock()
-    mock_session.post = mock_post
+    mock_response = mocker.MagicMock()
+    mock_session.post.return_value = mock_response
     mocker.patch('requests.Session', return_value=mock_session)
+    mock_cert_files = mocker.MagicMock()
+    mock_cert_files.__enter__ = mocker.MagicMock(return_value='cert_path')
+    mock_cert_files.__exit__ = mocker.MagicMock(return_value=False)
     mocker.patch.object(
         hashivault,
         'CertFiles',
-        return_value=mocker.MagicMock(),
+        return_value=mock_cert_files,
     )
 
     kwargs = {
         'url': 'https://vault.example.com',
+        'workload_identity_token': 'jwt_token',
+        'jwt_role': 'test_role',
+        'default_auth_path': 'jwt',
         **extra_kwargs,
     }
 
-    hashivault.revoke_token('test_token', **kwargs)
+    with hashivault.vault_token(**kwargs) as token:
+        assert token == 'test_token'
 
-    for header, value in expected_headers.items():
-        assert mock_session.headers[header] == value
-    mock_post.assert_called_once()
-    assert 'auth/token/revoke-self' in mock_post.call_args[0][0]
+    mock_handle_auth.assert_called_once_with(**kwargs)
+    for header, contents in expected_headers.items():
+        assert mock_session.headers[header] == contents
+    mock_session.post.assert_called_once()
+    assert 'auth/token/revoke-self' in mock_session.post.call_args[0][0]
+    mock_response.raise_for_status.assert_called_once()
 
 
-def test_revoke_token_handles_exceptions(mocker: MockerFixture) -> None:
-    """Test ``revoke_token()`` handles exceptions gracefully."""
+def test_vault_token_revoke_failure(
+    mocker: MockerFixture,
+) -> None:
+    """Test ``vault_token`` context manager raises when token revocation fails."""
+    mock_handle_auth = mocker.patch.object(
+        hashivault,
+        'handle_auth',
+        return_value='test_token',
+    )
     mock_session = mocker.MagicMock()
     mock_session.headers = {}
-    mock_session.post.side_effect = Exception('Network error')
+    mock_response = mocker.MagicMock()
+    mock_response.raise_for_status.side_effect = Exception('Revocation failed')
+    mock_session.post.return_value = mock_response
     mocker.patch('requests.Session', return_value=mock_session)
+    mock_cert_files = mocker.MagicMock()
+    mock_cert_files.__enter__ = mocker.MagicMock(return_value='cert_path')
+    mock_cert_files.__exit__ = mocker.MagicMock(return_value=False)
     mocker.patch.object(
         hashivault,
         'CertFiles',
-        return_value=mocker.MagicMock(),
+        return_value=mock_cert_files,
     )
-    mock_logger = mocker.patch.object(hashivault, 'logger')
 
     kwargs = {
         'url': 'https://vault.example.com',
+        'workload_identity_token': 'jwt_token',
+        'jwt_role': 'test_role',
+        'default_auth_path': 'jwt',
     }
 
-    # Should not raise exception
-    hashivault.revoke_token('test_token', **kwargs)
+    with pytest.raises(Exception, match='Revocation failed'):
+        with hashivault.vault_token(**kwargs) as token:
+            assert token == 'test_token'
 
-    mock_logger.warning.assert_called_once_with(
-        'Failed to revoke ephemeral Vault token',
-    )
+    mock_handle_auth.assert_called_once_with(**kwargs)
 
 
 @pytest.mark.parametrize(
-    ('backend_func', 'backend_kwargs'),
+    ('backend_func', 'extra_kwargs'),
     (
         pytest.param(
             'kv_backend',
-            {
-                'url': 'https://vault.example.com',
-                'workload_identity_token': 'jwt_token',
-                'jwt_role': 'test_role',
-                'default_auth_path': 'jwt',
-                'secret_path': '/secret/path',
-                'api_version': 'v1',
-                'secret_key': 'password',
-            },
+            {'api_version': 'v1', 'secret_key': 'password'},
             id='kv-backend-v1',
         ),
         pytest.param(
             'kv_backend',
-            {
-                'url': 'https://vault.example.com',
-                'workload_identity_token': 'jwt_token',
-                'jwt_role': 'test_role',
-                'default_auth_path': 'jwt',
-                'secret_path': '/secret/path',
-                'api_version': 'v2',
-                'secret_key': 'password',
-            },
+            {'api_version': 'v2', 'secret_key': 'password'},
             id='kv-backend-v2',
         ),
         pytest.param(
             'kv_backend',
             {
-                'url': 'https://vault.example.com',
-                'workload_identity_token': 'jwt_token',
-                'jwt_role': 'test_role',
-                'default_auth_path': 'jwt',
-                'secret_path': '/secret/path',
                 'api_version': 'v2',
                 'secret_key': 'password',
                 'namespace': 'test-namespace',
@@ -539,11 +545,6 @@ def test_revoke_token_handles_exceptions(mocker: MockerFixture) -> None:
         pytest.param(
             'kv_backend',
             {
-                'url': 'https://vault.example.com',
-                'workload_identity_token': 'jwt_token',
-                'jwt_role': 'test_role',
-                'default_auth_path': 'jwt',
-                'secret_path': '/secret/path',
                 'api_version': 'v2',
                 'secret_key': 'password',
                 'secret_version': '3',
@@ -553,11 +554,6 @@ def test_revoke_token_handles_exceptions(mocker: MockerFixture) -> None:
         pytest.param(
             'kv_backend',
             {
-                'url': 'https://vault.example.com',
-                'workload_identity_token': 'jwt_token',
-                'jwt_role': 'test_role',
-                'default_auth_path': 'jwt',
-                'secret_path': '/secret/path',
                 'api_version': 'v2',
                 'secret_key': 'password',
                 'secret_backend': 'kv',
@@ -567,11 +563,6 @@ def test_revoke_token_handles_exceptions(mocker: MockerFixture) -> None:
         pytest.param(
             'kv_backend',
             {
-                'url': 'https://vault.example.com',
-                'workload_identity_token': 'jwt_token',
-                'jwt_role': 'test_role',
-                'default_auth_path': 'jwt',
-                'secret_path': '/secret/path',
                 'api_version': 'v2',
                 'secret_key': 'password',
                 'namespace': 'test-namespace',
@@ -582,29 +573,12 @@ def test_revoke_token_handles_exceptions(mocker: MockerFixture) -> None:
         ),
         pytest.param(
             'ssh_backend',
-            {
-                'url': 'https://vault.example.com',
-                'workload_identity_token': 'jwt_token',
-                'jwt_role': 'test_role',
-                'default_auth_path': 'jwt',
-                'secret_path': '/ssh',
-                'role': 'test_ssh_role',
-                'public_key': 'ssh-rsa AAAAB...',
-            },
+            {},
             id='ssh-backend',
         ),
         pytest.param(
             'ssh_backend',
-            {
-                'url': 'https://vault.example.com',
-                'workload_identity_token': 'jwt_token',
-                'jwt_role': 'test_role',
-                'default_auth_path': 'jwt',
-                'secret_path': '/ssh',
-                'role': 'test_ssh_role',
-                'public_key': 'ssh-rsa AAAAB...',
-                'namespace': 'test-namespace',
-            },
+            {'namespace': 'test-namespace'},
             id='ssh-backend-with-namespace',
         ),
     ),
@@ -612,17 +586,49 @@ def test_revoke_token_handles_exceptions(mocker: MockerFixture) -> None:
 def test_backend_revokes_oidc_token(
     mocker: MockerFixture,
     backend_func: str,
-    backend_kwargs: dict[str, str],
+    extra_kwargs: dict[str, str],
 ) -> None:
-    """Test backend functions revoke token in finally block for OIDC auth."""
+    """Test backend functions revoke token via context manager for OIDC auth."""
+    # Common base kwargs for all OIDC auth scenarios
+    base_kwargs = {
+        'url': 'https://vault.example.com',
+        'workload_identity_token': 'jwt_token',
+        'jwt_role': 'test_role',
+        'default_auth_path': 'jwt',
+    }
+
+    # Backend-specific kwargs
+    if backend_func == 'kv_backend':
+        backend_specific = {'secret_path': '/secret/path'}
+    else:  # ssh_backend
+        backend_specific = {
+            'secret_path': '/ssh',
+            'role': 'test_ssh_role',
+            'public_key': 'ssh-rsa AAAAB...',
+        }
+
+    backend_kwargs = {**base_kwargs, **backend_specific, **extra_kwargs}
+
     mock_handle_auth = mocker.patch.object(
         hashivault,
         'handle_auth',
         return_value='test_token',
     )
-    mock_revoke = mocker.patch.object(hashivault, 'revoke_token')
-    mocker.patch('requests.Session')
-    mocker.patch.object(hashivault, 'CertFiles')
+    mock_get_or_post_session = mocker.MagicMock()
+    mock_revoke_session = mocker.MagicMock()
+    mock_revoke_session.headers = {}
+    mock_revoke_response = mocker.MagicMock()
+    mock_revoke_session.post.return_value = mock_revoke_response
+
+    # requests.Session is called twice: once for secret fetch, once for revoke
+    mocker.patch(
+        'requests.Session',
+        side_effect=[mock_get_or_post_session, mock_revoke_session],
+    )
+    mock_cert_files = mocker.MagicMock()
+    mock_cert_files.__enter__ = mocker.MagicMock(return_value='cert_path')
+    mock_cert_files.__exit__ = mocker.MagicMock(return_value=False)
+    mocker.patch.object(hashivault, 'CertFiles', return_value=mock_cert_files)
     mocker.patch.object(hashivault, 'raise_for_status')
 
     backend = getattr(hashivault, backend_func)
@@ -631,7 +637,10 @@ def test_backend_revokes_oidc_token(
         backend(**backend_kwargs)
 
     mock_handle_auth.assert_called_once()
-    mock_revoke.assert_called_once_with('test_token', **backend_kwargs)
+    # Verify revocation was attempted
+    mock_revoke_session.post.assert_called_once()
+    assert 'auth/token/revoke-self' in mock_revoke_session.post.call_args[0][0]
+    mock_revoke_response.raise_for_status.assert_called_once()
 
 
 @pytest.mark.parametrize(

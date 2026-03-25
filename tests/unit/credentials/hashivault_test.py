@@ -475,8 +475,8 @@ def test_vault_token_revokes_oidc_token(
         assert token == 'test_token'
 
     mock_handle_auth.assert_called_once_with(**kwargs)
-    for header, contents in expected_headers.items():
-        assert mock_session.headers[header] == contents
+    for header, header_contents in expected_headers.items():
+        assert mock_session.headers[header] == header_contents
     mock_session.post.assert_called_once()
     assert 'auth/token/revoke-self' in mock_session.post.call_args[0][0]
     mock_response.raise_for_status.assert_called_once()
@@ -513,9 +513,12 @@ def test_vault_token_revoke_failure(
         'default_auth_path': 'jwt',
     }
 
-    with pytest.raises(Exception, match='Revocation failed'):
+    def _use_vault_token() -> None:
         with hashivault.vault_token(**kwargs) as token:
             assert token == 'test_token'
+
+    with pytest.raises(Exception, match='Revocation failed'):
+        _use_vault_token()
 
     mock_handle_auth.assert_called_once_with(**kwargs)
 

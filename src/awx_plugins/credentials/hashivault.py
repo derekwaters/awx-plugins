@@ -484,7 +484,7 @@ def workload_identity_auth(**kwargs):
 
 
 @_ctx.contextmanager
-def vault_token(**kwargs) -> Generator[str, None, None]:
+def vault_token(**kwargs: str) -> Generator[str, None, None]:
     """Context manager that yields a Vault token and revokes it on exit if obtained via workload identity."""
     token = handle_auth(**kwargs)
     try:
@@ -543,7 +543,7 @@ def method_auth(**kwargs):
     return token
 
 
-def kv_backend(**kwargs):  # noqa: PLR0915
+def kv_backend(**kwargs):
     with vault_token(**kwargs) as token:
         secret_path = kwargs['secret_path']
         secret_backend = kwargs.get('secret_backend')
@@ -565,7 +565,7 @@ def kv_backend(**kwargs):  # noqa: PLR0915
 
         if api_version == 'v2':
             if kwargs.get('secret_version'):
-                request_kwargs['params'] = {  # type: ignore[assignment]  # FIXME
+                request_kwargs['params'] = {  # type: ignore[assignment]
                     'version': kwargs['secret_version'],
                 }
             if secret_backend:
@@ -611,7 +611,7 @@ def kv_backend(**kwargs):  # noqa: PLR0915
             try:
                 if (
                     (secret_key != 'data')
-                    and (  # noqa: S105
+                    and (  # noqa: S105; not a password
                         secret_key not in json['data']
                     )
                     and ('data' in json['data'])

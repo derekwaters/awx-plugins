@@ -164,7 +164,8 @@ def azure_keyvault_backend(  # noqa: WPS211
         ) from request_err
     except _az_exc.AzureError as catchall_azure_error:
         raise RuntimeError(
-            f'Error retrieving secret from Azure Key Vault: {catchall_azure_error}',
+            'Error retrieving secret from Azure Key Vault: '
+            f'{catchall_azure_error}',
         ) from catchall_azure_error
     return keyvault_secret.value
 

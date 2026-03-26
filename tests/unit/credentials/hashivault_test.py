@@ -399,7 +399,7 @@ def test_non_oidc_plugins_have_no_internal_fields(
 def test_vault_token_no_workload_identity(
     mocker: MockerFixture,
 ) -> None:
-    """Test ``vault_token`` context manager doesn't revoke token without workload_identity_token."""
+    """Test ``_vault_token`` context manager doesn't revoke token without workload_identity_token."""
     mock_handle_auth = mocker.patch.object(
         hashivault,
         'handle_auth',
@@ -413,7 +413,7 @@ def test_vault_token_no_workload_identity(
         'token': 'test_token',
     }
 
-    with hashivault.vault_token(**kwargs) as token:
+    with hashivault._vault_token(**kwargs) as token:
         assert token == 'test_token'
 
     mock_handle_auth.assert_called_once_with(**kwargs)
@@ -443,7 +443,7 @@ def test_vault_token_revokes_oidc_token(
     extra_kwargs: dict[str, str],
     expected_headers: dict[str, str],
 ) -> None:
-    """Test ``vault_token`` context manager revokes token for workload identity auth."""
+    """Test ``_vault_token`` context manager revokes token for workload identity auth."""
     mock_handle_auth = mocker.patch.object(
         hashivault,
         'handle_auth',
@@ -471,7 +471,7 @@ def test_vault_token_revokes_oidc_token(
         **extra_kwargs,
     }
 
-    with hashivault.vault_token(**kwargs) as token:
+    with hashivault._vault_token(**kwargs) as token:
         assert token == 'test_token'
 
     mock_handle_auth.assert_called_once_with(**kwargs)
@@ -485,7 +485,7 @@ def test_vault_token_revokes_oidc_token(
 def test_vault_token_revoke_failure(
     mocker: MockerFixture,
 ) -> None:
-    """Test ``vault_token`` context manager raises when token revocation fails."""
+    """Test ``_vault_token`` context manager raises when token revocation fails."""
     mock_handle_auth = mocker.patch.object(
         hashivault,
         'handle_auth',
@@ -514,7 +514,7 @@ def test_vault_token_revoke_failure(
     }
 
     def _use_vault_token() -> None:
-        with hashivault.vault_token(**kwargs) as token:
+        with hashivault._vault_token(**kwargs) as token:
             assert token == 'test_token'
 
     with pytest.raises(Exception, match='Revocation failed'):

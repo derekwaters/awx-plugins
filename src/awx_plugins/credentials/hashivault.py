@@ -525,7 +525,9 @@ def _vault_token(**kwargs: str) -> _abc.Iterator[str]:
 
 
 # Param Spec to represent decorated function parameters
-_PT = _t.ParamSpec('_PT')
+_PT = _t.ParamSpec(  # FIXME: Use [_RT, **_PT] in the signature in Python 3.12
+    '_PT',
+)
 # TypeVar to represent decorated function return type
 _RT = _t.TypeVar('_RT')
 

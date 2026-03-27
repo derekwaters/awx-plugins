@@ -493,13 +493,13 @@ def _revoke_self_token(
     vault_token: str,
     url: str,
     namespace: str,
-    cacert: str,
+    cacert: str | None = None,
 ) -> None:
     """Revoke the passed-in Vault token."""
     url = urljoin(url, 'v1/auth/token/revoke-self')
     sess = requests.Session()
     sess.headers['X-Vault-Token'] = vault_token
-    if namespace:
+    if namespace != '':
         sess.headers['X-Vault-Namespace'] = namespace
     with CertFiles(cacert) as cert:
         resp = sess.post(url, verify=cert, timeout=30)
@@ -519,8 +519,8 @@ def _vault_token(**kwargs: str) -> _abc.Iterator[str]:
             _revoke_self_token(
                 vault_token=token,
                 url=kwargs['url'],
-                namespace=kwargs['namespace'],
-                cacert=kwargs['cacert'],
+                namespace=kwargs.get('namespace', ''),
+                cacert=kwargs.get('cacert'),
             )
 
 

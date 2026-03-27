@@ -403,10 +403,10 @@ def test_vault_token_no_workload_identity(
     mock_handle_auth = mocker.patch.object(
         hashivault,
         'handle_auth',
+        autospec=True,
         return_value='test_token',
     )
-    mock_session = mocker.MagicMock()
-    mocker.patch('requests.Session', return_value=mock_session)
+    mock_session = mocker.patch('requests.Session', autospec=True)
 
     kwargs = {
         'url': 'https://vault.example.com',
@@ -417,7 +417,7 @@ def test_vault_token_no_workload_identity(
         assert token == 'test_token'
 
     mock_handle_auth.assert_called_once_with(**kwargs)
-    mock_session.post.assert_not_called()
+    mock_session.return_value.post.assert_not_called()
 
 
 @pytest.mark.parametrize(
@@ -447,21 +447,18 @@ def test_vault_token_revokes_oidc_token(
     mock_handle_auth = mocker.patch.object(
         hashivault,
         'handle_auth',
+        autospec=True,
         return_value='test_token',
     )
-    mock_session = mocker.MagicMock()
+    mock_session_class = mocker.patch('requests.Session', autospec=True)
+    mock_session = mock_session_class.return_value
     mock_session.headers = {}
-    mock_response = mocker.MagicMock()
-    mock_session.post.return_value = mock_response
-    mocker.patch('requests.Session', return_value=mock_session)
-    mock_cert_files = mocker.MagicMock()
-    mock_cert_files.__enter__ = mocker.MagicMock(return_value='cert_path')
-    mock_cert_files.__exit__ = mocker.MagicMock(return_value=False)
-    mocker.patch.object(
+    mock_cert_files = mocker.patch.object(
         hashivault,
         'CertFiles',
-        return_value=mock_cert_files,
-    )
+        autospec=True,
+    ).return_value
+    mock_cert_files.__enter__.return_value = 'cert_path'
 
     kwargs = {
         'url': 'https://vault.example.com',
@@ -479,7 +476,7 @@ def test_vault_token_revokes_oidc_token(
         assert mock_session.headers[header] == header_contents
     mock_session.post.assert_called_once()
     assert 'auth/token/revoke-self' in mock_session.post.call_args[0][0]
-    mock_response.raise_for_status.assert_called_once()
+    mock_session.post.return_value.raise_for_status.assert_called_once()
 
 
 def test_vault_token_revoke_failure(
@@ -489,22 +486,21 @@ def test_vault_token_revoke_failure(
     mock_handle_auth = mocker.patch.object(
         hashivault,
         'handle_auth',
+        autospec=True,
         return_value='test_token',
     )
-    mock_session = mocker.MagicMock()
+    mock_session_class = mocker.patch('requests.Session', autospec=True)
+    mock_session = mock_session_class.return_value
     mock_session.headers = {}
-    mock_response = mocker.MagicMock()
-    mock_response.raise_for_status.side_effect = Exception('Revocation failed')
-    mock_session.post.return_value = mock_response
-    mocker.patch('requests.Session', return_value=mock_session)
-    mock_cert_files = mocker.MagicMock()
-    mock_cert_files.__enter__ = mocker.MagicMock(return_value='cert_path')
-    mock_cert_files.__exit__ = mocker.MagicMock(return_value=False)
-    mocker.patch.object(
+    mock_session.post.return_value.raise_for_status.side_effect = Exception(
+        'Revocation failed',
+    )
+    mock_cert_files = mocker.patch.object(
         hashivault,
         'CertFiles',
-        return_value=mock_cert_files,
-    )
+        autospec=True,
+    ).return_value
+    mock_cert_files.__enter__.return_value = 'cert_path'
 
     kwargs = {
         'url': 'https://vault.example.com',
@@ -615,24 +611,26 @@ def test_backend_revokes_oidc_token(
     mock_handle_auth = mocker.patch.object(
         hashivault,
         'handle_auth',
+        autospec=True,
         return_value='test_token',
     )
-    mock_get_or_post_session = mocker.MagicMock()
-    mock_revoke_session = mocker.MagicMock()
+    mock_get_or_post_session = mocker.Mock()
+    mock_revoke_session = mocker.Mock()
     mock_revoke_session.headers = {}
-    mock_revoke_response = mocker.MagicMock()
-    mock_revoke_session.post.return_value = mock_revoke_response
 
     # requests.Session is called twice: once for secret fetch, once for revoke
     mocker.patch(
         'requests.Session',
+        autospec=True,
         side_effect=[mock_get_or_post_session, mock_revoke_session],
     )
-    mock_cert_files = mocker.MagicMock()
-    mock_cert_files.__enter__ = mocker.MagicMock(return_value='cert_path')
-    mock_cert_files.__exit__ = mocker.MagicMock(return_value=False)
-    mocker.patch.object(hashivault, 'CertFiles', return_value=mock_cert_files)
-    mocker.patch.object(hashivault, 'raise_for_status')
+    mock_cert_files = mocker.patch.object(
+        hashivault,
+        'CertFiles',
+        autospec=True,
+    ).return_value
+    mock_cert_files.__enter__.return_value = 'cert_path'
+    mocker.patch.object(hashivault, 'raise_for_status', autospec=True)
 
     backend = getattr(hashivault, backend_func)
 
@@ -643,7 +641,7 @@ def test_backend_revokes_oidc_token(
     # Verify revocation was attempted
     mock_revoke_session.post.assert_called_once()
     assert 'auth/token/revoke-self' in mock_revoke_session.post.call_args[0][0]
-    mock_revoke_response.raise_for_status.assert_called_once()
+    mock_revoke_session.post.return_value.raise_for_status.assert_called_once()
 
 
 @pytest.mark.parametrize(

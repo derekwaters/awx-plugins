@@ -534,7 +534,7 @@ _RT = _t.TypeVar('_RT')
 
 
 def _inject_auth_token_with_revocation(
-    decorated_function: _t.Callable[_PT, _RT],
+    decorated_function: _t.Callable[_t.Concatenate[str, _PT], _RT],
     /,
 ) -> _t.Callable[_PT, _RT]:
     @_functools.wraps(decorated_function)

@@ -407,15 +407,15 @@ def test_vault_token_no_workload_identity(
     )
     mock_session = mocker.patch('requests.Session', autospec=True)
 
-    kwargs = {
+    vault_token_kwargs = {
         'url': 'https://vault.example.com',
         'token': 'test_token',
     }
 
-    with hashivault._vault_token(**kwargs) as token:
+    with hashivault._vault_token(**vault_token_kwargs) as token:
         assert token == 'test_token'
 
-    mock_handle_auth.assert_called_once_with(**kwargs)
+    mock_handle_auth.assert_called_once_with(**vault_token_kwargs)
     mock_session.return_value.post.assert_not_called()
 
 

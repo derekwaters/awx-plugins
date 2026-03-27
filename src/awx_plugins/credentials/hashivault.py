@@ -524,33 +524,26 @@ def _vault_token(**kwargs: str) -> _abc.Iterator[str]:
             )
 
 
-def _inject_auth_token_with_revocation[T, **P](
-    decorated_function: _t.Callable[P, T],
+# Param Spec to represent decorated function parameters
+_PT = _t.ParamSpec('_PT')
+# TypeVar to represent decorated function return type
+_RT = _t.TypeVar('_RT')
+
+
+def _inject_auth_token_with_revocation(
+    decorated_function: _t.Callable[_PT, _RT],
     /,
-) -> _t.Callable[P, T]:
+) -> _t.Callable[_PT, _RT]:
     @_functools.wraps(decorated_function)
     def _decorate_the_function_with_revocation(  # noqa: WPS430 -- in-decorator
-        **kwargs: P.kwargs,
-    ) -> T:
+        *args: _PT.args,
+        **kwargs: _PT.kwargs,
+    ) -> _RT:
         with _vault_token(**kwargs) as token:
             kwargs['token'] = token
-            return decorated_function(**kwargs)
+            return decorated_function(*args, **kwargs)
 
-    # Fools mypy
-    return _t.cast('_t.Callable[P, T]', _decorate_the_function_with_revocation)
-
-
-# def _inject_auth_token_with_revocation(
-#     decorated_function: _t.Callable[[str, dict[str, str]], str],
-#     /,
-# ) -> _t.Callable[[dict[str, str]], str]:
-#     @_functools.wraps(decorated_function)
-#     def _decorate_the_function_with_revokation(**kwargs: str) -> str:
-#         with _vault_token(**kwargs) as token:
-#             return decorated_function(token=token, **kwargs)
-
-#     # Needed to satisfy mypy return type expectations
-#     return _t.cast(_t.Callable[[dict[str, str]], str], _decorate_the_function_with_revokation)
+    return _decorate_the_function_with_revocation
 
 
 def method_auth(**kwargs):

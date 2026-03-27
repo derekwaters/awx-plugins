@@ -5,6 +5,8 @@ import typing as _t
 import pytest
 from pytest_mock import MockerFixture
 
+import requests as _requests
+
 from awx_plugins.credentials import _types, hashivault
 from awx_plugins.credentials.plugin import CredentialPlugin
 
@@ -491,8 +493,8 @@ def test_vault_token_revoke_failure(
     mock_session_class = mocker.patch('requests.Session', autospec=True)
     mock_session = mock_session_class.return_value
     mock_session.headers = {}
-    mock_session.post.return_value.raise_for_status.side_effect = Exception(
-        'Revocation failed',
+    mock_session.post.return_value.raise_for_status.side_effect = (
+        _requests.HTTPError('403 Client Error: Forbidden for url: ...')
     )
     mock_cert_files = mocker.patch.object(
         hashivault,
@@ -512,7 +514,7 @@ def test_vault_token_revoke_failure(
         with hashivault._vault_token(**kwargs) as token:
             assert token == 'test_token'
 
-    with pytest.raises(Exception, match='Revocation failed'):
+    with pytest.raises(_requests.HTTPError, match='403 Client Error'):
         _use_vault_token()
 
     mock_handle_auth.assert_called_once_with(**kwargs)

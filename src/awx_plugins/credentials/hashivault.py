@@ -619,7 +619,7 @@ def kv_backend(  # noqa: WPS211 -- the same as too-many-arguments
 
     if api_version == 'v2':
         if secret_version:
-            request_kwargs['params'] = {  # type: ignore[assignment]
+            request_kwargs['params'] = {  # type: ignore[assignment]  # FIXME
                 'version': secret_version,
             }
         if secret_backend:

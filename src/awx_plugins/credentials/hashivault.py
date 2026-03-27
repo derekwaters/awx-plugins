@@ -490,6 +490,7 @@ def workload_identity_auth(**kwargs):
 
 
 def _revoke_self_token(
+    *,
     vault_token: str,
     url: str,
     namespace: str,

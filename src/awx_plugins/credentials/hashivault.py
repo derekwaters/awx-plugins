@@ -489,7 +489,7 @@ def workload_identity_auth(**kwargs):
     return {'role': kwargs.get('jwt_role'), 'jwt': workload_identity_token}
 
 
-def revoke_self_token(
+def _revoke_self_token(
     vault_token: str,
     url: str,
     namespace: str,
@@ -516,7 +516,7 @@ def _vault_token(**kwargs: str) -> _abc.Iterator[str]:
     finally:
         # Only revoke tokens obtained via OIDC authentication
         if is_oidc_context:
-            revoke_self_token(
+            _revoke_self_token(
                 vault_token=token,
                 url=kwargs['url'],
                 namespace=kwargs['namespace'],

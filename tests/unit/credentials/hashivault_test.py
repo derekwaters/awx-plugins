@@ -522,68 +522,89 @@ def test_vault_token_revoke_failure(
     ('backend_func', 'extra_kwargs'),
     (
         pytest.param(
-            'kv_backend',
-            {'api_version': 'v1', 'secret_key': 'password'},
+            hashivault.kv_backend,
+            {
+                'api_version': 'v1',
+                'secret_key': 'password',
+                'secret_path': '/secret/path',
+            },
             id='kv-backend-v1',
         ),
         pytest.param(
-            'kv_backend',
-            {'api_version': 'v2', 'secret_key': 'password'},
+            hashivault.kv_backend,
+            {
+                'api_version': 'v2',
+                'secret_key': 'password',
+                'secret_path': '/secret/path',
+            },
             id='kv-backend-v2',
         ),
         pytest.param(
-            'kv_backend',
+            hashivault.kv_backend,
             {
                 'api_version': 'v2',
                 'secret_key': 'password',
                 'namespace': 'test-namespace',
+                'secret_path': '/secret/path',
             },
             id='kv-backend-v2-with-namespace',
         ),
         pytest.param(
-            'kv_backend',
+            hashivault.kv_backend,
             {
                 'api_version': 'v2',
                 'secret_key': 'password',
                 'secret_version': '3',
+                'secret_path': '/secret/path',
             },
             id='kv-backend-v2-with-secret-version',
         ),
         pytest.param(
-            'kv_backend',
+            hashivault.kv_backend,
             {
                 'api_version': 'v2',
                 'secret_key': 'password',
                 'secret_backend': 'kv',
+                'secret_path': '/secret/path',
             },
             id='kv-backend-v2-with-secret-backend',
         ),
         pytest.param(
-            'kv_backend',
+            hashivault.kv_backend,
             {
                 'api_version': 'v2',
                 'secret_key': 'password',
                 'namespace': 'test-namespace',
                 'secret_backend': 'kv',
                 'secret_version': '5',
+                'secret_path': '/secret/path',
             },
             id='kv-backend-v2-with-all-params',
         ),
         pytest.param(
-            'ssh_backend',
-            {},
+            hashivault.ssh_backend,
+            {
+                'secret_path': '/ssh',
+                'role': 'test_ssh_role',
+                'public_key': 'ssh-rsa AAAAB...',
+            },
             id='ssh-backend',
         ),
         pytest.param(
-            'ssh_backend',
-            {'namespace': 'test-namespace'},
+            hashivault.ssh_backend,
+            {
+                'namespace': 'test-namespace',
+                'secret_path': '/ssh',
+                'role': 'test_ssh_role',
+                'public_key': 'ssh-rsa AAAAB...',
+            },
             id='ssh-backend-with-namespace',
         ),
     ),
 )
 def test_backend_revokes_oidc_token(
     mocker: MockerFixture,
-    backend_func: str,
+    backend_func: _t.Callable[[dict[str, str]], str],
     extra_kwargs: dict[str, str],
 ) -> None:
     """Test backend functions revoke token via context manager for OIDC auth."""
@@ -595,17 +616,7 @@ def test_backend_revokes_oidc_token(
         'default_auth_path': 'jwt',
     }
 
-    # Backend-specific kwargs
-    if backend_func == 'kv_backend':
-        backend_specific = {'secret_path': '/secret/path'}
-    else:  # ssh_backend
-        backend_specific = {
-            'secret_path': '/ssh',
-            'role': 'test_ssh_role',
-            'public_key': 'ssh-rsa AAAAB...',
-        }
-
-    backend_kwargs = {**base_kwargs, **backend_specific, **extra_kwargs}
+    backend_kwargs = {**base_kwargs, **extra_kwargs}
 
     mock_handle_auth = mocker.patch.object(
         hashivault,
@@ -618,7 +629,7 @@ def test_backend_revokes_oidc_token(
 
     # Configure mock response for secret fetch based on backend type
     mock_secret_response = mocker.Mock()
-    if backend_func == 'kv_backend':
+    if backend_func.__name__ == 'kv_backend':
         api_version = extra_kwargs.get('api_version', 'v1')
         # kv_backend v1 expects {'data': {secret_key: value}}
         mock_secret_response.json.return_value = {
@@ -637,7 +648,7 @@ def test_backend_revokes_oidc_token(
     mock_secret_response.status_code = 200
 
     # Configure session mock based on backend type
-    if backend_func == 'kv_backend':
+    if backend_func.__name__ == 'kv_backend':
         mock_get_or_post_session.get.return_value = mock_secret_response
     else:  # ssh_backend
         mock_get_or_post_session.post.return_value = mock_secret_response
@@ -659,10 +670,10 @@ def test_backend_revokes_oidc_token(
     mock_cert_files.__enter__.return_value = 'cert_path'
     mocker.patch.object(hashivault, 'raise_for_status', autospec=True)
 
-    backend = getattr(hashivault, backend_func)
-
     # Call the backend function to retrieve the secret
-    backend(**backend_kwargs)
+    # Adding ignore[call-arg] since adding the explicit args to the backend
+    # functions makes the linter trigger the "too few arguments supplied"
+    backend_func(**backend_kwargs)  # type: ignore[call-arg]
 
     mock_handle_auth.assert_called_once()
     # Verify revocation was attempted

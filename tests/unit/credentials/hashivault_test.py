@@ -1,6 +1,5 @@
 """Tests for HashiCorp Vault credential plugins."""
 
-import contextlib
 import typing as _t
 
 import pytest
@@ -615,6 +614,34 @@ def test_backend_revokes_oidc_token(
         return_value='test_token',
     )
     mock_get_or_post_session = mocker.Mock()
+    mock_get_or_post_session.headers = {}
+
+    # Configure mock response for secret fetch based on backend type
+    mock_secret_response = mocker.Mock()
+    if backend_func == 'kv_backend':
+        api_version = extra_kwargs.get('api_version', 'v1')
+        # kv_backend v1 expects {'data': {secret_key: value}}
+        mock_secret_response.json.return_value = {
+            'data': {'password': 'test_value'},
+        }
+        if api_version == 'v2':
+            # kv_backend v2 expects {'data': {'data': {secret_key: value}}}
+            mock_secret_response.json.return_value = {
+                'data': mock_secret_response.json.return_value,
+            }
+    else:  # ssh_backend
+        # ssh_backend expects {'data': {'signed_key': value}}
+        mock_secret_response.json.return_value = {
+            'data': {'signed_key': 'test_signed_key'},
+        }
+    mock_secret_response.status_code = 200
+
+    # Configure session mock based on backend type
+    if backend_func == 'kv_backend':
+        mock_get_or_post_session.get.return_value = mock_secret_response
+    else:  # ssh_backend
+        mock_get_or_post_session.post.return_value = mock_secret_response
+
     mock_revoke_session = mocker.Mock()
     mock_revoke_session.headers = {}
 
@@ -634,8 +661,8 @@ def test_backend_revokes_oidc_token(
 
     backend = getattr(hashivault, backend_func)
 
-    with contextlib.suppress(Exception):
-        backend(**backend_kwargs)
+    # Call the backend function to retrieve the secret
+    backend(**backend_kwargs)
 
     mock_handle_auth.assert_called_once()
     # Verify revocation was attempted

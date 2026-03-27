@@ -543,8 +543,7 @@ def _inject_auth_token_with_revocation(
         **kwargs: _PT.kwargs,
     ) -> _RT:
         with _vault_token(**kwargs) as token:
-            kwargs['token'] = token
-            return decorated_function(*args, **kwargs)
+            return decorated_function(*args, token=token, **kwargs)
 
     return _decorate_the_function_with_revocation
 

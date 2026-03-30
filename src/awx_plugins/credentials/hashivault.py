@@ -542,6 +542,9 @@ def _inject_auth_token_with_revocation(
         *args: _PT.args,
         **kwargs: _PT.kwargs,
     ) -> _RT:
+        assert not args
+        assert 'token' not in kwargs
+
         with _vault_token(**kwargs) as token:
             return decorated_function(*args, token=token, **kwargs)
 

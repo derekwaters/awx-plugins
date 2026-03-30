@@ -5,8 +5,6 @@ import typing as _t
 import pytest
 from pytest_mock import MockerFixture
 
-import requests as _requests
-
 from awx_plugins.credentials import _types, hashivault
 from awx_plugins.credentials.plugin import CredentialPlugin
 
@@ -407,7 +405,11 @@ def test_vault_token_no_workload_identity(
         autospec=True,
         return_value='test_token',
     )
-    mock_session = mocker.patch('requests.Session', autospec=True)
+    mock_session = mocker.patch.object(
+        hashivault.requests,
+        'Session',
+        autospec=True,
+    )
 
     vault_token_kwargs = {
         'url': 'https://vault.example.com',
@@ -451,7 +453,11 @@ def test_vault_token_revokes_oidc_token(
         autospec=True,
         return_value='test_token',
     )
-    mock_session_class = mocker.patch('requests.Session', autospec=True)
+    mock_session_class = mocker.patch.object(
+        hashivault.requests,
+        'Session',
+        autospec=True,
+    )
     mock_session = mock_session_class.return_value
     mock_session.headers = {}
     mock_cert_files = mocker.patch.object(
@@ -490,11 +496,15 @@ def test_vault_token_revoke_failure(
         autospec=True,
         return_value='test_token',
     )
-    mock_session_class = mocker.patch('requests.Session', autospec=True)
+    mock_session_class = mocker.patch.object(
+        hashivault.requests,
+        'Session',
+        autospec=True,
+    )
     mock_session = mock_session_class.return_value
     mock_session.headers = {}
     mock_session.post.return_value.raise_for_status.side_effect = (
-        _requests.HTTPError('403 Client Error: Forbidden for url: ...')
+        hashivault.requests.HTTPError('403 Client Error: Forbidden for url: ...')
     )
     mock_cert_files = mocker.patch.object(
         hashivault,
@@ -514,7 +524,10 @@ def test_vault_token_revoke_failure(
         with hashivault._vault_token(**kwargs) as token:
             assert token == 'test_token'
 
-    with pytest.raises(_requests.HTTPError, match='403 Client Error'):
+    with pytest.raises(
+            hashivault.requests.HTTPError,
+            match='403 Client Error',
+    ):
         _use_vault_token()
 
     mock_handle_auth.assert_called_once_with(**kwargs)
@@ -659,8 +672,9 @@ def test_backend_revokes_oidc_token(
     mock_revoke_session.headers = {}
 
     # requests.Session is called twice: once for secret fetch, once for revoke
-    mocker.patch(
-        'requests.Session',
+    mocker.patch.object(
+        hashivault.requests,
+        'Session',
         autospec=True,
         side_effect=[mock_get_or_post_session, mock_revoke_session],
     )

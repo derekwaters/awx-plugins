@@ -2,6 +2,11 @@
 
 import typing as _t
 
+# NOTE: The forbidden import here is only used for typing, which warrants
+# NOTE: suppressing the respective pylint and ruff rules.
+# pylint: disable-next=deprecated-module,preferred-module
+from unittest import mock as _unittest_mock  # noqa: TID251 -- forbidden import
+
 import pytest
 from pytest_mock import MockerFixture
 
@@ -395,22 +400,48 @@ def test_non_oidc_plugins_have_no_internal_fields(
     assert internal_fields == []
 
 
-def test_vault_token_no_workload_identity(
-    mocker: MockerFixture,
-) -> None:
-    """Test ``_vault_token`` context manager doesn't revoke token without workload_identity_token."""
-    mock_handle_auth = mocker.patch.object(
+@pytest.fixture
+def handle_auth_mock(mocker: MockerFixture) -> object:
+    """Make a mocked ``handle_auth`` callable returning 'test_token'."""
+    return mocker.patch.object(
         hashivault,
         'handle_auth',
         autospec=True,
         return_value='test_token',
     )
-    mock_session = mocker.patch.object(
+
+
+@pytest.fixture
+def session_class_mock(mocker: MockerFixture) -> object:
+    """Make a mocked ``requests.Session`` class dummy."""
+    return mocker.patch.object(
         hashivault.requests,
         'Session',
         autospec=True,
     )
 
+
+@pytest.fixture
+def _cert_files_mock(mocker: MockerFixture) -> None:
+    """Replace ``CertFiles`` class with a dummy."""
+    mocker.patch.object(
+        hashivault,
+        'CertFiles',
+        autospec=True,
+    ).return_value.__enter__.return_value = 'cert_path'
+
+
+@pytest.fixture
+def _suppress_raise_for_status(mocker: MockerFixture) -> None:
+    """Suppress ``requests``' HTTP return code checks."""
+    mocker.patch.object(hashivault, 'raise_for_status', autospec=True)
+
+
+def test_vault_token_no_workload_identity(
+    handle_auth_mock: _unittest_mock.Mock,
+    session_class_mock: _unittest_mock.Mock,
+) -> None:
+    """Test ``_vault_token`` context manager doesn't revoke token without workload_identity_token."""
     vault_token_kwargs = {
         'url': 'https://vault.example.com',
         'token': 'test_token',
@@ -419,8 +450,8 @@ def test_vault_token_no_workload_identity(
     with hashivault._vault_token(**vault_token_kwargs) as token:
         assert token == 'test_token'
 
-    mock_handle_auth.assert_called_once_with(**vault_token_kwargs)
-    mock_session.return_value.post.assert_not_called()
+    handle_auth_mock.assert_called_once_with(**vault_token_kwargs)
+    session_class_mock.return_value.post.assert_not_called()
 
 
 @pytest.mark.parametrize(
@@ -441,31 +472,16 @@ def test_vault_token_no_workload_identity(
         ),
     ),
 )
+@pytest.mark.usefixtures('_cert_files_mock')
 def test_vault_token_revokes_oidc_token(
-    mocker: MockerFixture,
+    handle_auth_mock: _unittest_mock.Mock,
+    session_class_mock: _unittest_mock.Mock,
     extra_kwargs: dict[str, str],
     expected_headers: dict[str, str],
 ) -> None:
     """Test ``_vault_token`` context manager revokes token for workload identity auth."""
-    mock_handle_auth = mocker.patch.object(
-        hashivault,
-        'handle_auth',
-        autospec=True,
-        return_value='test_token',
-    )
-    mock_session_class = mocker.patch.object(
-        hashivault.requests,
-        'Session',
-        autospec=True,
-    )
-    mock_session = mock_session_class.return_value
+    mock_session = session_class_mock.return_value
     mock_session.headers = {}
-    mock_cert_files = mocker.patch.object(
-        hashivault,
-        'CertFiles',
-        autospec=True,
-    ).return_value
-    mock_cert_files.__enter__.return_value = 'cert_path'
 
     kwargs = {
         'url': 'https://vault.example.com',
@@ -478,7 +494,7 @@ def test_vault_token_revokes_oidc_token(
     with hashivault._vault_token(**kwargs) as token:
         assert token == 'test_token'
 
-    mock_handle_auth.assert_called_once_with(**kwargs)
+    handle_auth_mock.assert_called_once_with(**kwargs)
     for header, header_contents in expected_headers.items():
         assert mock_session.headers[header] == header_contents
     mock_session.post.assert_called_once()
@@ -486,32 +502,19 @@ def test_vault_token_revokes_oidc_token(
     mock_session.post.return_value.raise_for_status.assert_called_once()
 
 
+@pytest.mark.usefixtures('_cert_files_mock')
 def test_vault_token_revoke_failure(
-    mocker: MockerFixture,
+    handle_auth_mock: _unittest_mock.Mock,
+    session_class_mock: _unittest_mock.Mock,
 ) -> None:
     """Test ``_vault_token`` context manager raises when token revocation fails."""
-    mock_handle_auth = mocker.patch.object(
-        hashivault,
-        'handle_auth',
-        autospec=True,
-        return_value='test_token',
-    )
-    mock_session_class = mocker.patch.object(
-        hashivault.requests,
-        'Session',
-        autospec=True,
-    )
-    mock_session = mock_session_class.return_value
+    mock_session = session_class_mock.return_value
     mock_session.headers = {}
     mock_session.post.return_value.raise_for_status.side_effect = (
-        hashivault.requests.HTTPError('403 Client Error: Forbidden for url: ...')
+        hashivault.requests.HTTPError(
+            '403 Client Error: Forbidden for url: ...',
+        )
     )
-    mock_cert_files = mocker.patch.object(
-        hashivault,
-        'CertFiles',
-        autospec=True,
-    ).return_value
-    mock_cert_files.__enter__.return_value = 'cert_path'
 
     kwargs = {
         'url': 'https://vault.example.com',
@@ -525,12 +528,12 @@ def test_vault_token_revoke_failure(
             assert token == 'test_token'
 
     with pytest.raises(
-            hashivault.requests.HTTPError,
-            match='403 Client Error',
+        hashivault.requests.HTTPError,
+        match='403 Client Error',
     ):
         _use_vault_token()
 
-    mock_handle_auth.assert_called_once_with(**kwargs)
+    handle_auth_mock.assert_called_once_with(**kwargs)
 
 
 @pytest.mark.parametrize(
@@ -617,8 +620,11 @@ def test_vault_token_revoke_failure(
         ),
     ),
 )
+@pytest.mark.usefixtures('_cert_files_mock', '_suppress_raise_for_status')
 def test_backend_revokes_oidc_token(
+    handle_auth_mock: _unittest_mock.Mock,
     mocker: MockerFixture,
+    session_class_mock: _unittest_mock.Mock,
     backend_func: _t.Callable[[dict[str, str]], str],
     extra_kwargs: dict[str, str],
 ) -> None:
@@ -633,12 +639,6 @@ def test_backend_revokes_oidc_token(
 
     backend_kwargs = {**base_kwargs, **extra_kwargs}
 
-    mock_handle_auth = mocker.patch.object(
-        hashivault,
-        'handle_auth',
-        autospec=True,
-        return_value='test_token',
-    )
     mock_get_or_post_session = mocker.Mock()
     mock_get_or_post_session.headers = {}
 
@@ -672,26 +672,17 @@ def test_backend_revokes_oidc_token(
     mock_revoke_session.headers = {}
 
     # requests.Session is called twice: once for secret fetch, once for revoke
-    mocker.patch.object(
-        hashivault.requests,
-        'Session',
-        autospec=True,
-        side_effect=[mock_get_or_post_session, mock_revoke_session],
-    )
-    mock_cert_files = mocker.patch.object(
-        hashivault,
-        'CertFiles',
-        autospec=True,
-    ).return_value
-    mock_cert_files.__enter__.return_value = 'cert_path'
-    mocker.patch.object(hashivault, 'raise_for_status', autospec=True)
+    session_class_mock.side_effect = [
+        mock_get_or_post_session,
+        mock_revoke_session,
+    ]
 
     # Call the backend function to retrieve the secret
     # Adding ignore[call-arg] since adding the explicit args to the backend
     # functions makes the linter trigger the "too few arguments supplied"
     backend_func(**backend_kwargs)  # type: ignore[call-arg]
 
-    mock_handle_auth.assert_called_once()
+    handle_auth_mock.assert_called_once()
     # Verify revocation was attempted
     mock_revoke_session.post.assert_called_once()
     assert 'auth/token/revoke-self' in mock_revoke_session.post.call_args[0][0]

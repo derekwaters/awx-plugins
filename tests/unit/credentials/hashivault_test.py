@@ -643,10 +643,15 @@ def test_backend_revokes_oidc_token(
     mock_get_or_post_session.headers = {}
 
     # Configure mock response for secret fetch based on backend type
+    # and use it as a get or post method on the session mock
     mock_secret_response = mocker.Mock()
+    mock_secret_response.status_code = 200
+
     # MyPy is unhappy due to incomplete typing of the `backend_func` param but
     # we don't care too much for now.
     if backend_func is hashivault.kv_backend:  # type: ignore[comparison-overlap]
+        mock_get_or_post_session.get.return_value = mock_secret_response
+
         api_version = extra_kwargs.get('api_version', 'v1')
         # kv_backend v1 expects {'data': {secret_key: value}}
         mock_secret_response.json.return_value = {
@@ -658,19 +663,12 @@ def test_backend_revokes_oidc_token(
                 'data': mock_secret_response.json.return_value,
             }
     else:  # ssh_backend
+        mock_get_or_post_session.post.return_value = mock_secret_response
+
         # ssh_backend expects {'data': {'signed_key': value}}
         mock_secret_response.json.return_value = {
             'data': {'signed_key': 'test_signed_key'},
         }
-    mock_secret_response.status_code = 200
-
-    # Configure session mock based on backend type
-    # MyPy is unhappy due to incomplete typing of the `backend_func` param but
-    # we don't care too much for now.
-    if backend_func is hashivault.kv_backend:  # type: ignore[comparison-overlap]
-        mock_get_or_post_session.get.return_value = mock_secret_response
-    else:  # ssh_backend
-        mock_get_or_post_session.post.return_value = mock_secret_response
 
     mock_revoke_session = mocker.Mock()
     mock_revoke_session.headers = {}

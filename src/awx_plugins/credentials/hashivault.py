@@ -2,6 +2,7 @@
 # mypy: disable-error-code="arg-type, no-untyped-call, no-untyped-def"
 
 import contextlib as _ctx
+import contextvars as _ctx_vars
 import functools as _functools
 import os
 import pathlib
@@ -18,6 +19,10 @@ import requests
 
 from . import _types
 from .plugin import CertFiles, CredentialPlugin, raise_for_status
+
+
+_AUTH_TOKEN: _ctx_vars.ContextVar[str] = _ctx_vars.ContextVar('_AUTH_TOKEN')
+"""Authentication token for use in plugin handlers."""
 
 
 class _EmptyKwargs(_t.TypedDict):
@@ -525,6 +530,16 @@ def _vault_token(**kwargs: str) -> _abc.Iterator[str]:
             )
 
 
+@_ctx.contextmanager
+def _token_in_context(token: str, /) -> _abc.Iterator[None]:
+    """Set a token for the execution context lifetime."""
+    var_ctx_token = _AUTH_TOKEN.set(token)
+    try:
+        yield
+    finally:
+        _AUTH_TOKEN.reset(var_ctx_token)
+
+
 # Param Spec to represent decorated function parameters
 _PT = _t.ParamSpec(  # FIXME: Use [_RT, **_PT] in the signature in Python 3.12
     '_PT',
@@ -534,7 +549,7 @@ _RT = _t.TypeVar('_RT')
 
 
 def _inject_auth_token_with_revocation(
-    decorated_function: _t.Callable[_t.Concatenate[str, _PT], _RT],
+    decorated_function: _t.Callable[_PT, _RT],
     /,
 ) -> _t.Callable[_PT, _RT]:
     @_functools.wraps(decorated_function)
@@ -542,11 +557,9 @@ def _inject_auth_token_with_revocation(
         *args: _PT.args,
         **kwargs: _PT.kwargs,
     ) -> _RT:
-        assert not args
-        assert 'token' not in kwargs
-
         with _vault_token(**kwargs) as token:
-            return decorated_function(*args, token=token, **kwargs)
+            with _token_in_context(token):
+                return decorated_function(*args, **kwargs)
 
     return _decorate_the_function_with_revocation
 
@@ -598,7 +611,6 @@ def method_auth(**kwargs):
 # pylint: disable-next=too-many-arguments
 def kv_backend(  # noqa: WPS211 -- the same as too-many-arguments
     *,
-    token: str,
     url: str,
     api_version: str,
     secret_path: str,
@@ -616,9 +628,9 @@ def kv_backend(  # noqa: WPS211 -- the same as too-many-arguments
 
     sess = requests.Session()
     sess.mount(url, requests.adapters.HTTPAdapter(max_retries=5))
-    sess.headers['Authorization'] = f'Bearer {token}'
+    sess.headers['Authorization'] = f'Bearer {_AUTH_TOKEN.get()}'
     # Compatibility header for older installs of Hashicorp Vault
-    sess.headers['X-Vault-Token'] = token
+    sess.headers['X-Vault-Token'] = _AUTH_TOKEN.get()
     if namespace:
         sess.headers['X-Vault-Namespace'] = namespace
 
@@ -685,7 +697,6 @@ def kv_backend(  # noqa: WPS211 -- the same as too-many-arguments
 # pylint: disable-next=too-many-arguments
 def ssh_backend(  # noqa: WPS211 -- the same as too-many-arguments
     *,
-    token: str,
     url: str,
     secret_path: str,
     role: str,
@@ -711,11 +722,11 @@ def ssh_backend(  # noqa: WPS211 -- the same as too-many-arguments
 
     sess = requests.Session()
     sess.mount(url, requests.adapters.HTTPAdapter(max_retries=5))
-    sess.headers['Authorization'] = f'Bearer {token}'
+    sess.headers['Authorization'] = f'Bearer {_AUTH_TOKEN.get()}'
     if namespace:
         sess.headers['X-Vault-Namespace'] = namespace
     # Compatibility header for older installs of Hashicorp Vault
-    sess.headers['X-Vault-Token'] = token
+    sess.headers['X-Vault-Token'] = _AUTH_TOKEN.get()
     # https://www.vaultproject.io/api/secret/ssh/index.html#sign-ssh-key
     request_url = '/'.join([url, secret_path, 'sign', role]).rstrip('/')
 

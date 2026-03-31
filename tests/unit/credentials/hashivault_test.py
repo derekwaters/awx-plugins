@@ -1,3 +1,4 @@
+# pylint: disable=protected-access  # tests access private methods legitimately
 """Tests for HashiCorp Vault credential plugins."""
 
 import typing as _t

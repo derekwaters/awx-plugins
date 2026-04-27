@@ -199,18 +199,6 @@ jwt_role_field: _types.FieldDict = {
     ),
 }
 
-jwt_audience_field: _types.FieldDict = {
-    'id': 'jwt_aud',
-    'label': _('JWT Audience'),
-    'type': 'string',
-    'multiline': False,
-    'help_text': _(
-        'Identifies this Vault instance as the intended recipient of JWTs. '
-        'This value must match the bound_audiences configuration in your '
-        'Vault JWT auth method. Examples: hashicorp-vault-prod-01, '
-        'https://vault.example.com, or vault-production.',
-    ),
-}
 
 workload_identity_token_field: _types.FieldDict = {
     'id': 'workload_identity_token',
@@ -359,7 +347,6 @@ hashi_kv_oidc_inputs: _types.PluginInputs = {
         cacert_field,
         jwt_auth_path_field,
         jwt_role_field,
-        jwt_audience_field,
         namespace_field,
         workload_identity_token_field,
     ],
@@ -375,7 +362,6 @@ hashi_kv_oidc_inputs: _types.PluginInputs = {
         api_version_field['id'],
         jwt_auth_path_field['id'],
         jwt_role_field['id'],
-        jwt_audience_field['id'],
         secret_path_metadata['id'],
         secret_key_metadata['id'],
     ],
@@ -418,7 +404,6 @@ hashi_ssh_oidc_inputs: _types.PluginInputs = {
         cacert_field,
         jwt_auth_path_field,
         jwt_role_field,
-        jwt_audience_field,
         namespace_field,
         workload_identity_token_field,
     ],
@@ -433,7 +418,6 @@ hashi_ssh_oidc_inputs: _types.PluginInputs = {
         url_field['id'],
         jwt_auth_path_field['id'],
         jwt_role_field['id'],
-        jwt_audience_field['id'],
         secret_path_metadata['id'],
         public_key_metadata['id'],
         role_metadata['id'],

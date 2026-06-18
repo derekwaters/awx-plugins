@@ -745,7 +745,6 @@ controller = ManagedCredentialType(
                 'id': 'verify_ssl',
                 'label': gettext_noop('Verify SSL'),
                 'type': 'boolean',
-                'secret': False,
             },
             {
                 'id': 'request_timeout',

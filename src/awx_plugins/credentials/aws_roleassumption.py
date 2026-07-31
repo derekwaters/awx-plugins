@@ -7,6 +7,7 @@ import collections
 import datetime
 import hashlib
 import boto3
+import typing as _t
 
 from . import _types
 from .plugin import CertFiles, CredentialPlugin, raise_for_status
@@ -48,7 +49,7 @@ role_arn_field: _types.FieldDict = {
 }
 
 # Base input metadata
-identifier_metadata: _types.MetadataDixt = {
+identifier_metadata: _types.MetadataDict = {
     'id': 'identifier',
     'label': 'Identifier',
     'type': 'string',
@@ -81,8 +82,9 @@ def aws_role_assumption_backend(  # noqa: WPS210
     role_arn: str,
     external_id: str,
     identifier: str,
-    **_discarded_kwargs: Unpack[EmptyKwargs],
+    **_discarded_kwargs: _t.Unpack[_t.EmptyKwargs],
 ) -> str:
+    """Assume the specified AWS IAM role using the supplied credentials."""
     # Generate a hash unique MD5 for combo of user access key and ARN
     # This should allow two users requesting the same ARN role to have
     # separate credentials, and should allow the same user to request
@@ -122,9 +124,9 @@ def aws_role_assumption_backend(  # noqa: WPS210
 
     credentials = _aws_cred_cache.get(credential_key, None)
 
-    result = credentials.get(identifier)
-    if result is not None:
-        return result
+    result_identifier = credentials.get(identifier)
+    if result_identifier is not None:
+        return result_identifier
 
     raise ValueError(f'Could not find a value for {identifier}.')
 

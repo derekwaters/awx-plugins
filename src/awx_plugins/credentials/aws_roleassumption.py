@@ -1,16 +1,16 @@
 """AWS IAM Role Assumption Lookup Credential Plugin.
 
 This module provides the ability to retrieve AWS credentials from a short-lived
-assumed STS role"""
+assumed STS role
+"""
 
-import collections
 import datetime
 import hashlib
 import boto3
 import typing as _t
 
 from . import _types
-from .plugin import CertFiles, CredentialPlugin, raise_for_status
+from .plugin import CredentialPlugin
 
 from awx_plugins.interfaces._temporary_private_django_api import (  # noqa: WPS436
     gettext_noop as _,
@@ -23,7 +23,9 @@ access_key_field: _types.FieldDict = {
     'id': 'access_key',
     'label': 'AWS Access Key',
     'type': 'string',
-    'help_text': _('The AWS Access Key for the account assuming the named IAM role.'),
+    'help_text':
+        _('The AWS Access Key for the account assuming the named IAM role.',
+          ),
 }
 
 secret_key_field: _types.FieldDict = {
@@ -31,14 +33,16 @@ secret_key_field: _types.FieldDict = {
     'label': 'AWS Secret Key',
     'type': 'string',
     'secret': True,
-    'help_text': _('The AWS Secret Key for the account assuming the named IAM role.'),
+    'help_text':
+        _('The AWS Secret Key for the account assuming the named IAM role.',
+          ),
 }
 
 external_id_field: _types.FieldDict = {
     'id': 'external_id',
     'label': 'External ID',
     'type': 'string',
-    'help_text': _('An option external identifier used in AWS IAM tracing'),
+    'help_text': _('An optional external identifier used in AWS IAM tracing'),
 }
 
 role_arn_field: _types.FieldDict = {
@@ -54,8 +58,9 @@ identifier_metadata: _types.MetadataDict = {
     'label': 'Identifier',
     'type': 'string',
     'multiline': False,
-    'help_text': 'The name of the key in the assumed AWS' +
-        ' role to fetch [AccessKeyId | SecretAccessKey | SessionToken].',
+    'help_text': _('The name of the key in the assumed AWS'
+                   ' role to fetch [AccessKeyId | SecretAccessKey | SessionToken].',
+                   ),
 }
 
 # Plugin Input Definition
@@ -75,7 +80,7 @@ aws_role_assumption_inputs: _types.PluginInputs = {
 }
 
 
-def aws_role_assumption_backend(  # noqa: WPS210
+def aws_role_assumption_backend(  # noqa: WPS211
     *,
     access_key: str,
     secret_key: str,
@@ -92,23 +97,26 @@ def aws_role_assumption_backend(  # noqa: WPS210
     credential_key_hash = hashlib.md5((access_key + role_arn).encode('utf-8'))  # noqa: S324
     credential_key = credential_key_hash.hexdigest()
 
-    credentials = _aws_cred_cache.get(credential_key, None)
+    credentials = _aws_cred_cache.get(credential_key)
 
     # If there are no credentials for this user/ARN *or* the credentials
     # we have in the cache have expired, then we need to contact AWS again.
     if (credentials is None) or (
-        credentials['Expiration'] < datetime.datetime.now(credentials['Expiration'].tzinfo)):
+        credentials['Expiration']
+        < datetime.datetime.now(credentials['Expiration'].tzinfo)
+    ):
 
         if (access_key is None or len(access_key) == 0) and (
-            secret_key is None or len(secret_key) == 0):
+            secret_key is None or len(secret_key) == 0
+        ):
             # Connect using credentials in the EE
             connection = boto3.client(
-                service_name="sts",
+                service_name='sts',
             )
         else:
             # Connect to AWS using provided credentials
             connection = boto3.client(
-                service_name="sts",
+                service_name='sts',
                 aws_access_key_id=access_key,
                 aws_secret_access_key=secret_key,
             )
@@ -118,15 +126,15 @@ def aws_role_assumption_backend(  # noqa: WPS210
             ExternalId=external_id,
         )
 
-        credentials = response.get("Credentials", {})
+        credentials = response.get('Credentials', {})
 
         _aws_cred_cache[credential_key] = credentials
 
-    credentials = _aws_cred_cache.get(credential_key, None)
-
-    result_identifier = credentials.get(identifier)
-    if result_identifier is not None:
-        return result_identifier
+    credentials = _aws_cred_cache.get(credential_key)
+    if credentials is not None:
+        result_identifier = credentials.get(identifier)
+        if result_identifier is not None:
+            return result_identifier
 
     raise ValueError(f'Could not find a value for {identifier}.')
 

@@ -6,26 +6,27 @@ assumed STS role
 
 import datetime
 import hashlib
-import boto3
 import typing as _t
-
-from . import _types
-from .plugin import CredentialPlugin
 
 from awx_plugins.interfaces._temporary_private_django_api import (  # noqa: WPS436
     gettext_noop as _,
 )
 
-_aws_cred_cache = {}
+import boto3
+
+from . import _types
+from .plugin import CredentialPlugin
+
+_aws_cred_cache: dict[str, dict[str, str] ] = {}
 
 # Base input fields
 access_key_field: _types.FieldDict = {
     'id': 'access_key',
     'label': 'AWS Access Key',
     'type': 'string',
-    'help_text':
-        _('The AWS Access Key for the account assuming the named IAM role.',
-          ),
+    'help_text': _(
+        'The AWS Access Key for the account assuming the named IAM role.',
+    ),
 }
 
 secret_key_field: _types.FieldDict = {
@@ -33,9 +34,9 @@ secret_key_field: _types.FieldDict = {
     'label': 'AWS Secret Key',
     'type': 'string',
     'secret': True,
-    'help_text':
-        _('The AWS Secret Key for the account assuming the named IAM role.',
-          ),
+    'help_text': _(
+        'The AWS Secret Key for the account assuming the named IAM role.',
+    ),
 }
 
 external_id_field: _types.FieldDict = {
@@ -49,7 +50,6 @@ role_arn_field: _types.FieldDict = {
     'id': 'role_arn',
     'label': 'AWS ARN Role Name',
     'type': 'string',
-
 }
 
 # Base input metadata
@@ -58,9 +58,10 @@ identifier_metadata: _types.MetadataDict = {
     'label': 'Identifier',
     'type': 'string',
     'multiline': False,
-    'help_text': _('The name of the key in the assumed AWS'
-                   ' role to fetch [AccessKeyId | SecretAccessKey | SessionToken].',
-                   ),
+    'help_text': _(
+        'The name of the key in the assumed AWS'
+        ' role to fetch [AccessKeyId | SecretAccessKey | SessionToken].',
+    ),
 }
 
 # Plugin Input Definition
@@ -105,7 +106,6 @@ def aws_role_assumption_backend(  # noqa: WPS211
         credentials['Expiration']
         < datetime.datetime.now(credentials['Expiration'].tzinfo)
     ):
-
         if (access_key is None or len(access_key) == 0) and (
             secret_key is None or len(secret_key) == 0
         ):

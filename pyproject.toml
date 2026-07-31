@@ -77,6 +77,7 @@ centrify_vault_kv = "awx_plugins.credentials.centrify_vault:centrify_plugin"
 thycotic_dsv = "awx_plugins.credentials.dsv:dsv_plugin"
 thycotic_tss = "awx_plugins.credentials.tss:tss_plugin"
 aws_secretsmanager_credential = "awx_plugins.credentials.aws_secretsmanager:aws_secretmanager_plugin"
+aws_role_assumption = "awx_plugins.credentials.aws_roleassumption:aws_role_assumption_plugin"
 github_app_lookup = "awx_plugins.credentials.github_app:github_app_lookup"
 
 [project.entry-points."awx_plugins.managed_credentials"] # new entry points group name
@@ -186,6 +187,10 @@ credentials-thycotic-tss = [
   "python-tss-sdk >= 1.2.1",
 ]
 credentials-aws-secretsmanager-credential = [
+  "awx_plugins.interfaces",
+  "boto3",
+]
+credentials-aws-roleassumption-credential = [
   "awx_plugins.interfaces",
   "boto3",
 ]

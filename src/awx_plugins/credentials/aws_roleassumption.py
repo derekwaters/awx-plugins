@@ -17,7 +17,7 @@ from .plugin import CertFiles, CredentialPlugin, raise_for_status
 _aws_cred_cache = {}
 
 # Base input fields
-access_key_field: _types:FieldDict = {
+access_key_field: _types.FieldDict = {
     'id': 'access_key',
     'label': 'AWS Access Key',
     'type': 'string',
@@ -53,7 +53,7 @@ identifier_metadata: _types.MetadataDixt = {
     'type': 'string',
     'multiline': False,
     'help_text': 'The name of the key in the assumed AWS' +
-        ' role to fetch [AccessKeyId | SecretAccessKey | SessionToken].'
+        ' role to fetch [AccessKeyId | SecretAccessKey | SessionToken].',
 }
 
 # Plugin Input Definition
@@ -101,19 +101,19 @@ def aws_role_assumption_backend(**kwargs):
             secret_key is None or len(secret_key) == 0):
             # Connect using credentials in the EE
             connection = boto3.client(
-                service_name="sts"
+                service_name="sts",
             )
         else:
             # Connect to AWS using provided credentials
             connection = boto3.client(
                 service_name="sts",
                 aws_access_key_id=access_key,
-                aws_secret_access_key=secret_key
+                aws_secret_access_key=secret_key,
             )
         response = connection.assume_role(
             RoleArn=role_arn,
             RoleSessionName='AAP_AWS_Role_Session1',
-            ExternalId=external_id
+            ExternalId=external_id,
         )
 
         credentials = response.get("Credentials", {})
@@ -127,6 +127,7 @@ def aws_role_assumption_backend(**kwargs):
 
     raise ValueError(f'Could not find a value for {identifier}.')
 
+
 aws_role_assumption_plugin = CredentialPlugin(
     'AWS Role Assumption Lookup',
     # see: https://docs.ansible.com/ansible-tower/latest/html/userguide/credential_types.html
@@ -134,5 +135,5 @@ aws_role_assumption_plugin = CredentialPlugin(
     # see: https://github.com/ansible/awx-custom-credential-plugin-example
     inputs=aws_role_assumption_inputs,
     backend=aws_role_assumption_backend,
-    plugin_description='Lookup AWS short-lived credentials using AWS IAM Role Assumption'
+    plugin_description='Lookup AWS short-lived credentials using AWS IAM Role Assumption',
 )

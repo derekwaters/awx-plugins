@@ -17,6 +17,9 @@ import boto3
 from . import _types
 from .plugin import CredentialPlugin
 
+class _EmptyKwargs(_t.TypedDict):
+    """Schema for zero keyword arguments."""
+    
 _aws_cred_cache: dict[str, dict[str, str] ] = {}
 
 # Base input fields
@@ -88,7 +91,7 @@ def aws_role_assumption_backend(  # noqa: WPS211
     role_arn: str,
     external_id: str,
     identifier: str,
-    **_discarded_kwargs: _t.Unpack[_t.EmptyKwargs],
+    **_discarded_kwargs: _t.Unpack[_EmptyKwargs],
 ) -> str:
     """Assume the specified AWS IAM role using the supplied credentials."""
     # Generate a hash unique MD5 for combo of user access key and ARN
